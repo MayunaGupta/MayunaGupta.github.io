@@ -37,24 +37,10 @@ The model achieved an 87% accuracy in explaining past monsoon anomalies and outp
 
 
 
-## Blog
-
-### [Blog Post Title 1]
-
-Summary of Blog Post 1.
-
-Link: [Link to Blog Post 1]
-
-### [Blog Post Title 2]
-
-Summary of Blog Post 2.
-
-Link: [Link to Blog Post 2]
-
 ## Contact
 
-- Email: [Your Email]
-- LinkedIn: [Your LinkedIn Profile]
-- Twitter: [Your Twitter Handle]
+- Email: [mayunagupta@gmail.com]
+- Alumni ID: [mayuna.gupta@iitdalumni.com]
+- LinkedIn: [LinkedIn](https://www.linkedin.com/in/mayuna-gupta/)
 
 Feel free to reach out! 😊
