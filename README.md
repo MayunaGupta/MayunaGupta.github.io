@@ -17,7 +17,7 @@ This project is about using AI to enhance how we detect health issues, especiall
 #### Results:
 Our innovative approach showcased outstanding accuracy and provided clear explanations for doctors. This means our AI system doesn't just predict; it helps medical professionals understand why a diagnosis was made. This project represents a step forward in making medical AI more trustworthy and effective in real-world scenarios.
 
-Link: Work is under review at an A* venue
+Link: Work is under review
 
 ### Project 2: Forecasting the EL-Nino Southern Oscillation using Sea Surface Temperatures
 
