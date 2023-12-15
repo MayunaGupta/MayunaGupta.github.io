@@ -12,19 +12,21 @@ Link: [Link to Project 1]
 
 ### Project 2: Forecasting the EL-Nino Southern Oscillation using Sea Surface Temperatures
 
-# Overview:
+#### Overview:
 In this project, I used advanced technology to predict the Indian Summer Monsoon (ISM), a crucial weather pattern in India. By analyzing sea surface temperatures and leveraging machine learning, I forecasted the monsoon's intensity 12 months in advance. This groundbreaking work surpassed existing models, enhancing our ability to prepare for and understand the monsoon's impact on agriculture.
 
-# Significance:
+#### Significance:
 Accurate predictions are essential for farmers, as they help in planning their agricultural activities, ensuring a better harvest. The success of this project not only contributes to scientific knowledge but also supports the livelihoods of the millions of farmers who depend on the monsoon for their crops.
 
-# Results:
+#### Results:
 The model achieved an 87% accuracy in explaining past monsoon anomalies and outperformed 85% of existing models. This project represents a significant step forward in atmospheric science, with potential applications in improving agricultural practices and mitigating the effects of climate-related disruptions.
 
-# Publications
-Gupta, Mayuna, Hariprasad Kodamana, and S. J. I. G. Sandeep. "Prediction of ENSO beyond spring predictability barrier using deep convolutional LSTM networks." IEEE Geoscience and Remote Sensing Letters 19 (2020): 1-5. 
+#### Publications
+1. **Gupta, Mayuna**, Hariprasad Kodamana, and S. J. I. G. Sandeep. "Prediction of ENSO beyond spring predictability barrier using deep convolutional LSTM networks." IEEE Geoscience and Remote Sensing Letters 19 (2020): 1-5.[Paper](https://ieeexplore.ieee.org/abstract/document/9244083)[Full text](https://www.researchgate.net/profile/Mayuna-Gupta-2/publication/345098701_Prediction_of_ENSO_Beyond_Spring_Predictability_Barrier_Using_Deep_Convolutional_LSTM_Networks/links/63677fcb431b1f530076b8d9/Prediction-of-ENSO-Beyond-Spring-Predictability-Barrier-Using-Deep-Convolutional-LSTM-Networks.pdf)
 
-Link: [Paper](https://www.researchgate.net/profile/Mayuna-Gupta-2/publication/345098701_Prediction_of_ENSO_Beyond_Spring_Predictability_Barrier_Using_Deep_Convolutional_LSTM_Networks/links/63677fcb431b1f530076b8d9/Prediction-of-ENSO-Beyond-Spring-Predictability-Barrier-Using-Deep-Convolutional-LSTM-Networks.pdf)
+2. Sinha, Aryaman, **Mayuna Gupta**, KSS Sai Srujan, Hariprasad Kodamana, and S. Sandeep. "Prediction of synoptic-scale sea level pressure over the Indian monsoon region using deep learning." IEEE Geoscience and Remote Sensing Letters 19 (2021): 1-5. [Paper](https://ieeexplore.ieee.org/abstract/document/9507518)
+
+
 
 ## Blog
 
