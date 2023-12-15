@@ -8,7 +8,16 @@ Hello, I'm Mayuna. I am passionate about computer vision, medical artificial int
 
 ### Project 1: Gallbladder Cancer Detection
 
-Link: [Link to Project 1]
+#### Overview:
+In this project, I worked on making medical imaging, particularly ultrasound (USG), more effective in detecting diseases. Focusing on Gallbladder Cancer, our team created an intelligent algorithm to identify cancer features in USG videos. Using this technology, we achieved an impressive 96% accuracy in classifying videos, bringing us closer to non-invasive and reliable diagnostic solutions.
+
+#### Significance:
+This project is about using AI to enhance how we detect health issues, especially in cases like Gallbladder Cancer, where traditional methods face challenges. By improving the accuracy of medical imaging, we aim to make diagnoses quicker and more accessible, potentially saving lives.
+
+#### Results:
+Our innovative approach showcased outstanding accuracy and provided clear explanations for doctors. This means our AI system doesn't just predict; it helps medical professionals understand why a diagnosis was made. This project represents a step forward in making medical AI more trustworthy and effective in real-world scenarios.
+
+Link: [Work is under review at an A* venue]()
 
 ### Project 2: Forecasting the EL-Nino Southern Oscillation using Sea Surface Temperatures
 
