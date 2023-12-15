@@ -1,2 +1,51 @@
-# MayunaGupta.github.io
-Website
+# My GitHub Page
+
+## About Me
+
+Hello, I'm Mayuna. I am passionate about computer vision, medical artificial intelligence, machine learning, and anything and everything related to AI :)
+
+## Projects
+
+### Project 1: GallBladder Cancer Detection
+
+
+
+Link: [Link to Project 1]
+
+### Project 2: Forecasting the EL-Nino Southern Oscillation using Sea Surface Temperatures
+
+## Overview:
+In this project, I used advanced technology to predict the Indian Summer Monsoon (ISM), a crucial weather pattern in India. By analyzing sea surface temperatures and leveraging machine learning, I forecasted the monsoon's intensity 12 months in advance. This groundbreaking work surpassed existing models, enhancing our ability to prepare for and understand the monsoon's impact on agriculture.
+
+## Significance:
+Accurate predictions are essential for farmers, as they help in planning their agricultural activities, ensuring a better harvest. The success of this project not only contributes to scientific knowledge but also supports the livelihoods of the millions of farmers who depend on the monsoon for their crops.
+
+##Results:
+The model achieved an 87% accuracy in explaining past monsoon anomalies and outperformed 85% of existing models. This project represents a significant step forward in atmospheric science, with potential applications in improving agricultural practices and mitigating the effects of climate-related disruptions.
+
+#Publication Link
+Gupta, Mayuna, Hariprasad Kodamana, and S. J. I. G. Sandeep. "Prediction of ENSO beyond spring predictability barrier using deep convolutional LSTM networks." IEEE Geoscience and Remote Sensing Letters 19 (2020): 1-5. [Paper](https://www.researchgate.net/profile/Mayuna-Gupta-2/publication/345098701_Prediction_of_ENSO_Beyond_Spring_Predictability_Barrier_Using_Deep_Convolutional_LSTM_Networks/links/63677fcb431b1f530076b8d9/Prediction-of-ENSO-Beyond-Spring-Predictability-Barrier-Using-Deep-Convolutional-LSTM-Networks.pdf)
+
+Link: [Link to Project 2]
+
+## Blog
+
+### [Blog Post Title 1]
+
+Summary of Blog Post 1.
+
+Link: [Link to Blog Post 1]
+
+### [Blog Post Title 2]
+
+Summary of Blog Post 2.
+
+Link: [Link to Blog Post 2]
+
+## Contact
+
+- Email: [Your Email]
+- LinkedIn: [Your LinkedIn Profile]
+- Twitter: [Your Twitter Handle]
+
+Feel free to reach out! 😊
