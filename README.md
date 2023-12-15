@@ -1,5 +1,3 @@
-# My GitHub Page
-
 ## About Me
 
 Hello, I'm Mayuna. I am passionate about computer vision, medical artificial intelligence, machine learning, and anything and everything related to AI :)
