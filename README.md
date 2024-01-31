@@ -1,7 +1,7 @@
 ## About Me
 
 Hello, I'm Mayuna. I am passionate about computer vision, medical artificial intelligence, machine learning, and anything and everything related to AI :)
-![Image](https://github.com/MayunaGupta/MayunaGupta.github.io/blob/main/mg.jpeg)
+![Image](mg.jpeg)
 ## Projects
 
 ### Project 1: Gallbladder Cancer Detection
