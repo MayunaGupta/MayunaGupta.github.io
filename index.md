@@ -1,7 +1,6 @@
 # Mayuna Gupta
 
 📍 United States  
-📞 +1 (858) 214-8648  
 📧 [mayunagupta@gmail.com](mailto:mayunagupta@gmail.com)  
 🔗 [LinkedIn](https://www.linkedin.com/in/mayuna-gupta/)  
 🔗 [Google Scholar](https://scholar.google.com/citations?user=1OJyElQAAAAJ&hl=en)  
