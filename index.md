@@ -34,6 +34,7 @@
 **Sep 2025 – Present**
 - Developing a scalable deep learning pipeline using **transformer architectures** to process **terabytes of 4D cellular imaging data**
 - Enabling CLIP-style detection of mechanistic pathways in cells for spatiotemporal microscopy data using only mitochondrial data
+- Locally deployed a PubChem Retrieval-Augmented Generation (RAG) system for efficient in-lab scientific literature and compound information retrieval
 
 ---
 
@@ -78,6 +79,13 @@
 
 ---
 
+### Intern — *Procter & Gamble*
+**May 2019 – Jul 2019**
+- Designed a roadmap for **Industry 4.0 automation**, improving quality-check efficiency by **150×**
+- Evaluated 100+ vendors and achieved **90% cost savings** through localization and POC testing
+
+---
+
 ## Academic Projects
 
 ### Master’s Scholar — *IIT Delhi*
@@ -90,10 +98,10 @@
 
 ---
 
-### Intern — *Procter & Gamble*
-**May 2019 – Jul 2019**
-- Designed a roadmap for **Industry 4.0 automation**, improving quality-check efficiency by **150×**
-- Evaluated 100+ vendors and achieved **90% cost savings** through localization and POC testing
+### Diffusion frequency analysis - *UCSD*
+**Sep 2025 - Dec 2025**
+- Analyzed failure modes of diffusion denoising models by separating frequency bands via wavelet decomposition
+- Developed an enhanced wavelet-guided denoising strategy to better preserve fine-grained details while suppressing noise
 
 ---
 
