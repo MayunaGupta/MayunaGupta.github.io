@@ -1,0 +1,27 @@
+body {
+    max-width: 900px;
+    margin: auto;
+    padding: 1rem;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.resume-nav {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #eaeaea;
+    padding: 0.75rem 1rem;
+    display: flex;
+    gap: 1rem;
+    z-index: 100;
+}
+
+.resume-nav a {
+    text-decoration: none;
+    font-weight: 500;
+    color: #333;
+}
+
+.resume-nav a:hover {
+    color: #0056b3;
+}
