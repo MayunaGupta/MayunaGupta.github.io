@@ -1,10 +1,15 @@
 # Mayuna Gupta
 
-📍 United States  
-📧 [mayunagupta@gmail.com](mailto:mayunagupta@gmail.com)  
-🔗 [LinkedIn](https://www.linkedin.com/in/mayuna-gupta/)  
-🔗 [Google Scholar](https://scholar.google.com/citations?user=1OJyElQAAAAJ&hl=en)  
-🌐 [Website](https://Mayunagupta.github.io)
+<div style="display: flex; align-items: center; justify-content: space-between;">
+  <div>
+    📍 San Diego, California<br>
+    📧 <a href="mailto:mayunagupta@gmail.com">mayunagupta@gmail.com</a><br>
+    🔗 <a href="https://www.linkedin.com/in/mayuna-gupta/">LinkedIn</a><br>
+    🔗 <a href="https://scholar.google.com/citations?user=1OJyElQAAAAJ&hl=en">Google Scholar</a><br>
+    🌐 <a href="https://Mayunagupta.github.io">Website</a>
+  </div>
+  <img src="mg.jpeg" alt="Mayuna Gupta Photo" style="width:90px;height:90px;object-fit:cover;border-radius:50%;margin-left:24px;box-shadow:0 2px 6px rgba(0,0,0,0.12);" />
+</div>
 
 ---
 
