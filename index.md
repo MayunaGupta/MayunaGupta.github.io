@@ -36,7 +36,7 @@
 ## Experience
 
 ### Graduate Research Assistant — *Schoeneberg Lab*
-**Sep 2025 – Present**
+**Sep 2025 – Feb 2026**
 - Developing a scalable deep learning pipeline using **transformer architectures** to process **terabytes of 4D cellular imaging data**
 - Enabling CLIP-style detection of mechanistic pathways in cells for spatiotemporal microscopy data using only mitochondrial data
 - Locally deployed a PubChem Retrieval-Augmented Generation (RAG) system for efficient in-lab scientific literature and compound information retrieval
