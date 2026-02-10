@@ -8,7 +8,7 @@
     🔗 <a href="https://scholar.google.com/citations?user=1OJyElQAAAAJ&hl=en">Google Scholar</a><br>
     🌐 <a href="https://Mayunagupta.github.io">Website</a>
   </div>
-  <img src="mg.jpeg" alt="Mayuna Gupta Photo" style="width:90px;height:90px;object-fit:cover;border-radius:50%;margin-left:48px;box-shadow:0 2px 6px rgba(0,0,0,0.12);" />
+  <img src="mg.jpeg" alt="Mayuna Gupta Photo" style="width:120px;height:120px;object-fit:cover;border-radius:50%;margin-left:24px;box-shadow:0 2px 6px rgba(0,0,0,0.12);" />
 </div>
 
 ---
