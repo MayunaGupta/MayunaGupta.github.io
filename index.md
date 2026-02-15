@@ -33,13 +33,45 @@
 
 ---
 
+## Skills
+
+<table>
+  <tr>
+    <th>Category</th>
+    <th>Skills</th>
+  </tr>
+  <tr>
+    <td><b>Programming</b></td>
+    <td>Python, PyTorch, TensorFlow, NumPy, Pandas, SQL, Bash, C++</td>
+  </tr>
+  <tr>
+    <td><b>AI/ML</b></td>
+    <td>Transformers, Vision-Language Models, Scikit-learn, XGBoost, OpenCV, LangChain, Masked Autoencoders</td>
+  </tr>
+  <tr>
+    <td><b>Data & Visualization</b></td>
+    <td>Matplotlib, Seaborn, Plotly, Scikit-image</td>
+  </tr>
+  <tr>
+    <td><b>Cloud & Deployment</b></td>
+    <td>Docker, Kubernetes, Git, Linux, AWS, Azure, SLURM</td>
+  </tr>
+  <tr>
+    <td><b>Other</b></td>
+    <td>Scientific Writing, Literature Review</td>
+  </tr>
+</table>
+
+
+---
+
 ## Experience
 
 ### Graduate Research Assistant — *Schoeneberg Lab*
 **Sep 2025 – Feb 2026**
 - Developing a scalable deep learning pipeline using **transformer architectures** to process **terabytes of 4D cellular imaging data**
 - Enabling CLIP-style detection of mechanistic pathways in cells for spatiotemporal microscopy data using only mitochondrial data
-- Locally deployed a PubChem Retrieval-Augmented Generation (RAG) system for efficient in-lab scientific literature and compound information retrieval
+- Locally deployed a PubChem Retrieval-Augmented Generation (RAG) system for efficient in-lab scientific literature and compound information retrieval using LangChain
 
 ---
 
