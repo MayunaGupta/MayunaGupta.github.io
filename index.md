@@ -41,24 +41,24 @@
     <th>Skills</th>
   </tr>
   <tr>
-    <td><b>Programming</b></td>
-    <td>Python, PyTorch, TensorFlow, NumPy, Pandas, SQL, Bash, C++</td>
+    <td style="text-align: left;"><b>Programming</b></td>
+    <td style="text-align: right;">Python, PyTorch, TensorFlow, NumPy, Pandas, SQL, Bash, C++</td>
   </tr>
   <tr>
-    <td><b>AI/ML</b></td>
-    <td>Transformers, Vision-Language Models, Scikit-learn, XGBoost, OpenCV, LangChain, Masked Autoencoders</td>
+    <td style="text-align: left;"><b>AI/ML</b></td>
+    <td style="text-align: right;">Transformers, Vision-Language Models, Scikit-learn, XGBoost, OpenCV, LangChain, Masked Autoencoders</td>
   </tr>
   <tr>
-    <td><b>Data and Visualization</b></td>
-    <td>Matplotlib, Seaborn, Plotly, Scikit-image</td>
+    <td style="text-align: left;"><b>Data and Visualization</b></td>
+    <td style="text-align: right;">Matplotlib, Seaborn, Plotly, Scikit-image</td>
   </tr>
   <tr>
-    <td><b>Cloud & Deployment</b></td>
-    <td>Docker, Kubernetes, Git, Linux, AWS, Azure, SLURM</td>
+    <td style="text-align: left;"><b>Cloud & Deployment</b></td>
+    <td style="text-align: right;">Docker, Kubernetes, Git, Linux, AWS, Azure, SLURM</td>
   </tr>
   <tr>
-    <td><b>Other</b></td>
-    <td>Scientific Writing, Literature Review</td>
+    <td style="text-align: left;"><b>Other</b></td>
+    <td style="text-align: right;">Scientific Writing, Literature Review</td>
   </tr>
 </table>
 
