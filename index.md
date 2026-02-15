@@ -49,7 +49,7 @@
     <td>Transformers, Vision-Language Models, Scikit-learn, XGBoost, OpenCV, LangChain, Masked Autoencoders</td>
   </tr>
   <tr>
-    <td><b>Data & Visualization</b></td>
+    <td><b>Data and Visualization</b></td>
     <td>Matplotlib, Seaborn, Plotly, Scikit-image</td>
   </tr>
   <tr>
