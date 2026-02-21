@@ -35,32 +35,39 @@
 
 ## Skills
 
-<table>
-  <tr>
-    <th>Category</th>
-    <th>Skills</th>
-  </tr>
-  <tr>
-    <td style="text-align: left;"><b>Programming</b></td>
-    <td style="text-align: right;">Python, PyTorch, TensorFlow, NumPy, Pandas, SQL, Bash, C++</td>
-  </tr>
-  <tr>
-    <td style="text-align: left;"><b>AI/ML</b></td>
-    <td style="text-align: right;">Transformers, Vision-Language Models, Scikit-learn, XGBoost, OpenCV, LangChain, Masked Autoencoders</td>
-  </tr>
-  <tr>
-    <td style="text-align: left;"><b>Data and Visualization</b></td>
-    <td style="text-align: right;">Matplotlib, Seaborn, Plotly, Scikit-image</td>
-  </tr>
-  <tr>
-    <td style="text-align: left;"><b>Cloud & Deployment</b></td>
-    <td style="text-align: right;">Docker, Kubernetes, Git, Linux, AWS, Azure, SLURM</td>
-  </tr>
-  <tr>
-    <td style="text-align: left;"><b>Other</b></td>
-    <td style="text-align: right;">Scientific Writing, Literature Review</td>
-  </tr>
-</table>
+<div style="margin: 20px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+    <thead>
+      <tr style="background:#eaeaea;">
+        <th style="border: 1px solid #ccc; padding: 8px; text-align:center;">Category</th>
+        <th style="border: 1px solid #ccc; padding: 8px; text-align:center;">Skills</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Programming</b></td>
+        <td style="border: 1px solid #ccc; padding: 8px;">Python &nbsp;|&nbsp; PyTorch &nbsp;|&nbsp; TensorFlow &nbsp;|&nbsp; NumPy &nbsp;|&nbsp; Pandas &nbsp;|&nbsp; SQL &nbsp;|&nbsp; Bash &nbsp;|&nbsp; C++</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>AI / ML</b></td>
+        <td style="border: 1px solid #ccc; padding: 8px;">Transformers &nbsp;|&nbsp; Vision-Language Models &nbsp;|&nbsp; Scikit-learn &nbsp;|&nbsp; XGBoost &nbsp;|&nbsp; OpenCV &nbsp;|&nbsp; LangChain &nbsp;|&nbsp; Masked Autoencoders</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Data & Visualization</b></td>
+        <td style="border: 1px solid #ccc; padding: 8px;">Matplotlib &nbsp;|&nbsp; Seaborn &nbsp;|&nbsp; Plotly &nbsp;|&nbsp; Scikit-image &nbsp;|&nbsp; PowerBI</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Cloud & Deployment</b></td>
+        <td style="border: 1px solid #ccc; padding: 8px;">Docker &nbsp;|&nbsp; Kubernetes &nbsp;|&nbsp; Git &nbsp;|&nbsp; Linux &nbsp;|&nbsp; AWS &nbsp;|&nbsp; Azure &nbsp;|&nbsp; SLURM &nbsp;|&nbsp; GCP</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Other</b></td>
+        <td style="border: 1px solid #ccc; padding: 8px;">Scientific Writing &nbsp;|&nbsp; Literature Review</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
 
 
 ---
