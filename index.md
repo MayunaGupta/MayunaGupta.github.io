@@ -82,7 +82,7 @@
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Data Visualization</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    Matplotlib &nbsp;|&nbsp; Seaborn &nbsp;|&nbsp; Plotly &nbsp;|&nbsp; Power BI &nbsp;|&nbsp; Tableau &nbsp;|&nbsp; Streamlit |&nbsp; WanDB
+    Matplotlib &nbsp;|&nbsp; Seaborn &nbsp;|&nbsp; Plotly &nbsp;|&nbsp; Power BI &nbsp;|&nbsp; Tableau &nbsp;|&nbsp; Streamlit |&nbsp; WandB
   </td>
 </tr>
 
