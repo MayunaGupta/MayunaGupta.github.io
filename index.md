@@ -44,26 +44,68 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Programming</b></td>
-        <td style="border: 1px solid #ccc; padding: 8px;">Python &nbsp;|&nbsp; PyTorch &nbsp;|&nbsp; TensorFlow &nbsp;|&nbsp; NumPy &nbsp;|&nbsp; Pandas &nbsp;|&nbsp; SQL &nbsp;|&nbsp; Bash &nbsp;|&nbsp; C++</td>
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>AI / ML</b></td>
-        <td style="border: 1px solid #ccc; padding: 8px;">Transformers &nbsp;|&nbsp; Vision-Language Models &nbsp;|&nbsp; Scikit-learn &nbsp;|&nbsp; XGBoost &nbsp;|&nbsp; OpenCV &nbsp;|&nbsp; LangChain &nbsp;|&nbsp; Masked Autoencoders</td>
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Data & Visualization</b></td>
-        <td style="border: 1px solid #ccc; padding: 8px;">Matplotlib &nbsp;|&nbsp; Seaborn &nbsp;|&nbsp; Plotly &nbsp;|&nbsp; Scikit-image &nbsp;|&nbsp; PowerBI</td>
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Cloud & Deployment</b></td>
-        <td style="border: 1px solid #ccc; padding: 8px;">Docker &nbsp;|&nbsp; Kubernetes &nbsp;|&nbsp; Git &nbsp;|&nbsp; Linux &nbsp;|&nbsp; AWS &nbsp;|&nbsp; Azure &nbsp;|&nbsp; SLURM &nbsp;|&nbsp; GCP</td>
-      </tr>
-      <tr>
-        <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Other</b></td>
-        <td style="border: 1px solid #ccc; padding: 8px;">Scientific Writing &nbsp;|&nbsp; Literature Review</td>
-      </tr>
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Programming & Scripting</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    Python &nbsp;|&nbsp; C++ &nbsp;|&nbsp; SQL &nbsp;|&nbsp; Bash &nbsp;|&nbsp; JavaScript &nbsp;|&nbsp; TypeScript
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Core ML & Deep Learning</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    PyTorch &nbsp;|&nbsp; TensorFlow &nbsp;|&nbsp; Keras &nbsp;|&nbsp; Scikit-learn &nbsp;|&nbsp; XGBoost &nbsp;|&nbsp; LightGBM &nbsp;|&nbsp; NumPy &nbsp;|&nbsp; Pandas
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Generative AI & LLMs</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    Transformers &nbsp;|&nbsp; Large Language Models (LLMs) &nbsp;|&nbsp; Vision-Language Models (VLMs) &nbsp;|&nbsp; LangChain &nbsp;|&nbsp; RAG &nbsp;|&nbsp; Agentic AI &nbsp;|&nbsp; Prompt Engineering &nbsp;|&nbsp; Fine-tuning &nbsp;|&nbsp; LoRA &nbsp;|&nbsp; Masked Autoencoders
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Computer Vision & Imaging</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    OpenCV &nbsp;|&nbsp; Scikit-image &nbsp;|&nbsp; Image Segmentation &nbsp;|&nbsp; Object Detection &nbsp;|&nbsp; Multimodal Learning
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Data Engineering & Processing</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    Apache Spark &nbsp;|&nbsp; Hadoop &nbsp;|&nbsp; ETL Pipelines &nbsp;|&nbsp; Data Modeling &nbsp;|&nbsp; Feature Engineering
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Data Visualization</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    Matplotlib &nbsp;|&nbsp; Seaborn &nbsp;|&nbsp; Plotly &nbsp;|&nbsp; Power BI &nbsp;|&nbsp; Tableau &nbsp;|&nbsp; Streamlit
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>MLOps & Deployment</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    Docker &nbsp;|&nbsp; Kubernetes &nbsp;|&nbsp; Git &nbsp;|&nbsp; CI/CD &nbsp;|&nbsp; Linux &nbsp;|&nbsp; MLflow &nbsp;|&nbsp; ONNX &nbsp;|&nbsp; REST APIs &nbsp;|&nbsp; FastAPI
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Cloud & Infrastructure</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    AWS &nbsp;|&nbsp; Azure &nbsp;|&nbsp; GCP &nbsp;|&nbsp; SLURM &nbsp;|&nbsp; Distributed Training &nbsp;|&nbsp; Model Parallelism
+  </td>
+</tr>
+
+<tr>
+  <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Research & Professional Skills</b></td>
+  <td style="border: 1px solid #ccc; padding: 8px;">
+    Scientific Writing &nbsp;|&nbsp; Literature Review &nbsp;|&nbsp; Experiment Design &nbsp;|&nbsp; Technical Documentation &nbsp;|&nbsp; Presentation Skills
+  </td>
+</tr>
     </tbody>
   </table>
 </div>
