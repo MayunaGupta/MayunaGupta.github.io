@@ -61,7 +61,7 @@
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Generative AI & LLMs</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    Transformers &nbsp;|&nbsp; Large Language Models (LLMs) &nbsp;|&nbsp; Vision-Language Models (VLMs) &nbsp;|&nbsp; LangChain &nbsp;|&nbsp; RAG &nbsp;|&nbsp; Agentic AI &nbsp;|&nbsp; Prompt Engineering &nbsp;|&nbsp; Fine-tuning &nbsp;|&nbsp; LoRA &nbsp;|&nbsp; Masked Autoencoders
+    Transformers &nbsp;|&nbsp; Large Language Models (LLMs) &nbsp;|&nbsp; Vision-Language Models (VLMs) &nbsp;|&nbsp; LangChain &nbsp;|&nbsp; RAG &nbsp;|&nbsp; Agentic AI &nbsp;|&nbsp; Prompt Engineering &nbsp;|&nbsp; Fine-tuning &nbsp;|&nbsp; LoRA &nbsp;|&nbsp; Masked Autoencoders |&nbsp; MCP |&nbsp; Diffusion
   </td>
 </tr>
 
@@ -82,7 +82,7 @@
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Data Visualization</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    Matplotlib &nbsp;|&nbsp; Seaborn &nbsp;|&nbsp; Plotly &nbsp;|&nbsp; Power BI &nbsp;|&nbsp; Tableau &nbsp;|&nbsp; Streamlit
+    Matplotlib &nbsp;|&nbsp; Seaborn &nbsp;|&nbsp; Plotly &nbsp;|&nbsp; Power BI &nbsp;|&nbsp; Tableau &nbsp;|&nbsp; Streamlit |&nbsp; WanDB
   </td>
 </tr>
 
@@ -96,7 +96,7 @@
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Cloud & Infrastructure</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    AWS &nbsp;|&nbsp; Azure &nbsp;|&nbsp; GCP &nbsp;|&nbsp; SLURM &nbsp;|&nbsp; Distributed Training &nbsp;|&nbsp; Model Parallelism
+    AWS (Sagemaker) &nbsp;|&nbsp; Azure &nbsp;|&nbsp; GCP &nbsp;|&nbsp; SLURM &nbsp;|&nbsp; Distributed Training &nbsp;|&nbsp; Model Parallelism
   </td>
 </tr>
 
