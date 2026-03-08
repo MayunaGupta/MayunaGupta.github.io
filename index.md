@@ -184,10 +184,17 @@
 
 ---
 
-### Diffusion frequency analysis - *UCSD*
-**Sep 2025 - Dec 2025**
-- Analyzed failure modes of diffusion denoising models by separating frequency bands via wavelet decomposition
-- Developed an enhanced wavelet-guided denoising strategy to better preserve fine-grained details while suppressing noise
+### Computer Vision & Imaging — *UCSD*
+- **Wavelet Denoising:** Designed a wavelet-guided diffusion strategy that integrates frequency-domain constraints to preserve fine-grained structure during denoising
+- **Amodal Segmentation:** Built a latent diffusion framework with prompt tuning and LMM embeddings to reconstruct occluded object boundaries
+- **Artistic Motion Blur:** Engineered a model to induce controllable motion blur by simulating shutter speed and physical camera dynamics
+- **Medical Imaging (CT):** Quantified how CT resolution shifts affect coronary artery calcium scoring and developed correction factors
+
+### Agentic & NLP Systems — *UCSD*
+- **Agentic AI Systems:** Building an autonomous agent that generates synthetic electricity bills to simulate complex usage patterns for benchmarking and consumer Q&A
+
+### Creative Projects
+- **Workout Pose Estimation:** Developed a solution using pose estimation techniques (e.g., Mediapipe) to provide real-time correction for workout form. The tool runs entirely locally, processes any YouTube video (≤2 mins) as input, requires only a single camera, and does not need you to carry your phone.
 
 ---
 
