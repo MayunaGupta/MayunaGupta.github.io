@@ -114,7 +114,7 @@
 
 ## Experience
 
-### Graduate Research Assistant — *Schoeneberg Lab*
+### Graduate Research Fellow — *Schoeneberg Lab*
 **Sep 2025 – Feb 2026**
 - Developing a scalable deep learning pipeline using **transformer architectures** to process **terabytes of 4D cellular imaging data**
 - Enabling CLIP-style detection of mechanistic pathways in cells for spatiotemporal microscopy data using only mitochondrial data
@@ -122,7 +122,7 @@
 
 ---
 
-### AI Engineer Intern — *PlayStation*
+### AI Research Engineer — *PlayStation*
 **Jun 2025 – Sep 2025**
 - Pioneered **real-time gameplay understanding** using **Vision–Language Model (VLM) embeddings**, eliminating inference latency through multimodal representations
 - Designed a **creation and evaluation framework** for multimodal gameplay embeddings, measuring semantic quality, clustering behaviour, and alignment with gameplay experts
@@ -139,7 +139,7 @@
 
 ---
 
-### Senior Research Fellow — *IIT Delhi (Prof. Chetan Arora)*
+### Research Scientist — *IIT Delhi (Prof. Chetan Arora)*
 **Jun 2023 – Mar 2024**
 - **LQ-Adapter**: Proposed Vision Transformer adapters with **learnable queries** for gallbladder cancer detection from ultrasound images  
   - Surpassed SOTA with **71.9% mean IoU**
