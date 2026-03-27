@@ -6,27 +6,21 @@
     📧 <a href="mailto:mayunagupta@gmail.com">mayunagupta@gmail.com</a><br>
     🔗 <a href="https://www.linkedin.com/in/mayuna-gupta/">LinkedIn</a><br>
     🔗 <a href="https://scholar.google.com/citations?user=1OJyElQAAAAJ&hl=en">Google Scholar</a><br>
-    🌐 <a href="https://Mayunagupta.github.io">Website</a>
+    🌐 <a href="https://mayunagupta.github.io">Website</a>
   </div>
   <img src="mg.jpeg" alt="Mayuna Gupta Photo" style="width:120px;height:120px;object-fit:cover;border-radius:50%;margin-left:24px;box-shadow:0 2px 6px rgba(0,0,0,0.12);" />
 </div>
-
-<!-- ## 📌 Navigation
-- [Education](#education)
-- [Experience](#experience)
-- [Academic Projects](#academic-projects)
-- [Publications](#publications) -->
 
 ---
 
 ## Education
 
 **University of California San Diego**  
-*Master’s in Electrical and Computer Engineering*  
+*Master's in Electrical and Computer Engineering*  
 **Sep 2024 – Jun 2026 (Expected)**
 
 **Indian Institute of Technology Delhi**  
-*Bachelor’s and Master’s of Technology in Chemical Engineering*  
+*Bachelor's + Master's of Technology (Dual Degree) in Chemical Engineering*  
 **Jun 2016 – Jun 2021**
 
 ---
@@ -59,14 +53,14 @@
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Generative AI & LLMs</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    Transformers &nbsp;,&nbsp; Large Language Models (LLMs) &nbsp;,&nbsp; Vision-Language Models (VLMs) &nbsp;,&nbsp; LangChain &nbsp;,&nbsp; RAG &nbsp;,&nbsp; Agentic AI &nbsp;,&nbsp; Prompt Engineering &nbsp;,&nbsp; Fine-tuning &nbsp;,&nbsp; LoRA &nbsp;,&nbsp; Masked Autoencoders ,&nbsp; MCP ,&nbsp; Diffusion
+    Transformers &nbsp;,&nbsp; Large Language Models (LLMs) &nbsp;,&nbsp; Vision-Language Models (VLMs) &nbsp;,&nbsp; Hugging Face &nbsp;,&nbsp; LangChain &nbsp;,&nbsp; Retrieval-Augmented Generation (RAG) &nbsp;,&nbsp; FAISS &nbsp;,&nbsp; Agentic AI &nbsp;,&nbsp; Prompt Engineering &nbsp;,&nbsp; Fine-tuning &nbsp;,&nbsp; LoRA &nbsp;,&nbsp; Masked Autoencoders &nbsp;,&nbsp; MCP &nbsp;,&nbsp; Diffusion Models
   </td>
 </tr>
 
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Computer Vision & Imaging</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    OpenCV &nbsp;,&nbsp; Scikit-image &nbsp;,&nbsp; Image Segmentation &nbsp;,&nbsp; Object Detection &nbsp;,&nbsp; Multimodal Learning
+    OpenCV &nbsp;,&nbsp; Scikit-image &nbsp;,&nbsp; CLIP &nbsp;,&nbsp; SAM &nbsp;,&nbsp; Image Segmentation &nbsp;,&nbsp; Object Detection &nbsp;,&nbsp; Multimodal Learning &nbsp;,&nbsp; Medical Imaging &nbsp;,&nbsp; 3D Slicer &nbsp;,&nbsp; Pyradiomics
   </td>
 </tr>
 
@@ -80,73 +74,72 @@
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Data Visualization</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    Matplotlib &nbsp;,&nbsp; Seaborn &nbsp;,&nbsp; Plotly &nbsp;,&nbsp; Power BI &nbsp;,&nbsp; Tableau &nbsp;,&nbsp; Streamlit ,&nbsp; WandB
+    Matplotlib &nbsp;,&nbsp; Seaborn &nbsp;,&nbsp; Plotly &nbsp;,&nbsp; Power BI &nbsp;,&nbsp; Tableau &nbsp;,&nbsp; Streamlit &nbsp;,&nbsp; Weights & Biases (WandB)
   </td>
 </tr>
 
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>MLOps & Deployment</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    Docker &nbsp;,&nbsp; Kubernetes &nbsp;,&nbsp; Git &nbsp;,&nbsp; CI/CD &nbsp;,&nbsp; Linux &nbsp;,&nbsp; MLflow &nbsp;,&nbsp; ONNX &nbsp;,&nbsp; REST APIs &nbsp;,&nbsp; FastAPI
+    Docker &nbsp;,&nbsp; Kubernetes &nbsp;,&nbsp; Git &nbsp;,&nbsp; CI/CD &nbsp;,&nbsp; Linux &nbsp;,&nbsp; MLflow &nbsp;,&nbsp; ONNX &nbsp;,&nbsp; REST APIs &nbsp;,&nbsp; FastAPI &nbsp;,&nbsp; Model Deployment &nbsp;,&nbsp; Experiment Tracking
   </td>
 </tr>
 
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Cloud & Infrastructure</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    AWS (Sagemaker) &nbsp;,&nbsp; Azure &nbsp;,&nbsp; GCP &nbsp;,&nbsp; SLURM &nbsp;,&nbsp; Distributed Training &nbsp;,&nbsp; Model Parallelism
+    AWS (SageMaker, S3) &nbsp;,&nbsp; Azure &nbsp;,&nbsp; GCP &nbsp;,&nbsp; SLURM &nbsp;,&nbsp; Distributed Training &nbsp;,&nbsp; Model Parallelism
   </td>
 </tr>
 
 <tr>
   <td style="border: 1px solid #ccc; padding: 8px; background:#fafbfc;"><b>Research & Professional Skills</b></td>
   <td style="border: 1px solid #ccc; padding: 8px;">
-    Scientific Writing &nbsp;,&nbsp; Literature Review &nbsp;,&nbsp; Experiment Design &nbsp;,&nbsp; Technical Documentation &nbsp;,&nbsp; Presentation Skills
+    Scientific Writing &nbsp;,&nbsp; Literature Review &nbsp;,&nbsp; Experiment Design &nbsp;,&nbsp; Benchmarking &nbsp;,&nbsp; Technical Documentation &nbsp;,&nbsp; Presentation Skills
   </td>
 </tr>
     </tbody>
   </table>
 </div>
 
-
-
 ---
 
 ## Experience
 
 ### Graduate Research Fellow — *Schoeneberg Lab*
-**Sep 2025 – Feb 2026**
-- Developing a scalable deep learning pipeline using **transformer architectures** to process **terabytes of 4D cellular imaging data**
-- Enabling CLIP-style detection of mechanistic pathways in cells for spatiotemporal microscopy data using only mitochondrial data
-- Locally deployed a PubChem Retrieval-Augmented Generation (RAG) system for efficient in-lab scientific literature and compound information retrieval using LangChain
+**Sep 2025 – Mar 2026**
+- Developed a scalable deep learning pipeline using **Transformer architectures** to process **terabytes of 4D cellular imaging data**, establishing a novel benchmark for biological significance that improved feature capture by **41%**
+- Applied **CLIP-style contrastive learning** to map mitochondrial morphology to mechanistic pathways, achieving **87% Top-3 accuracy** using restricted organelle data
+- Built and deployed a **PubChem Retrieval-Augmented Generation (RAG) system** using LangChain for efficient in-lab scientific literature and compound retrieval; used daily by **15+ researchers**
 
 ---
 
 ### AI Research Engineer — *PlayStation*
 **Jun 2025 – Sep 2025**
-- Pioneered **real-time gameplay understanding** using **Vision–Language Model (VLM) embeddings**, eliminating inference latency through multimodal representations
-- Designed a **creation and evaluation framework** for multimodal gameplay embeddings, measuring semantic quality, clustering behaviour, and alignment with gameplay experts
+- Introduced **real-time gameplay understanding** using **Vision–Language Model (VLM) embeddings** via GAME (Game-Aware Multimodal Embeddings), eliminating inference latency through prompt-conditioned multimodal representations
+- Designed a **creation and evaluation framework** for multimodal gameplay embeddings, measuring semantic quality, clustering behaviour, and alignment with gameplay experts; achieved **94.8% accuracy** across complex sequences
 - Stabilized embedding generation using **prompt randomization strategies**, improving robustness by emphasizing semantic context over lexical variation
+- Demonstrated **zero-shot generalization** to unseen game mechanics through Retrieval-Augmented Generation (RAG)-based retrieval of gameplay states
 
 ---
 
 ### Senior Data Scientist — *Paraxial Healthtech*
 **Apr 2024 – Aug 2024**
-- Designed an **XGBoost-based texture characterisation pipeline** for lung nodule classification using shape, intensity, neighbourhood similarity, segmentation, and gradient features  
+- Developed an **XGBoost-based texture characterization pipeline** for lung nodule classification using shape, intensity, neighbourhood similarity, segmentation, and gradient features  
   → Achieved **93% classification accuracy**
 - Built a **detection and Agatston scoring pipeline** for coronary calcification in non-contrast CT scans
-- Reduced compute by **40%** by repurposing lung lobe segmentation with a **pixel-aware crop-and-paste algorithm**
+- Reduced compute by **40%** by optimizing lung lobe segmentation with a **pixel-aware crop-and-paste algorithm**
 
 ---
 
 ### Research Scientist — *IIT Delhi (Prof. Chetan Arora)*
 **Jun 2023 – Mar 2024**
-- **LQ-Adapter**: Proposed Vision Transformer adapters with **learnable queries** for gallbladder cancer detection from ultrasound images  
-  - Surpassed SOTA with **71.9% mean IoU**
+- **LQ-Adapter**: Formulated Vision Transformer (ViT) adapters with **learnable queries** for gallbladder cancer (GBC) detection from ultrasound images  
+  - Surpassed all state-of-the-art methods with **71.9% mean IoU**
   - Achieved **93.4% classification accuracy** using spatial priors  
   - **Early Acceptance, WACV 2025**
-- **FocusMAE**: Developed a self-supervised, interpretable **video transformer masked autoencoder** framework for early cancer detection from ultrasound videos  
-  - Introduced **adaptive foreground masking** using spatial priors
+- **FocusMAE**: Designed a self-supervised, interpretable **Video Transformer Masked Autoencoder** framework for early cancer detection from ultrasound videos  
+  - Introduced **adaptive foreground masking** using spatial priors from image-based object detection
   - Achieved **96.4% accuracy** with radiologist-approved explainability  
   - **Accepted at CVPR 2024 (Poster)**
 
@@ -154,45 +147,52 @@
 
 ### Associate Data Scientist — *Gartner*
 **Aug 2021 – Jun 2023**
-- Built a **360° client risk identification and mitigation workflow**
-- Engineered behavioural and interaction-based features to predict churn  
+- Spearheaded a **360° client risk identification, tracking, and mitigation workflow** for Gartner's service associates
+- Engineered behavioral and interaction-based features to predict churn  
   → **90% recall, 81% AUC**
-- Designed **automated feature selection using multi-agent reinforcement learning**, reducing feature space from 2000+ to 63 explainable features  
+- Implemented **automated feature selection using Multi-Agent Reinforcement Learning (MARL)**, reducing feature space from 2000+ to 63 business-explainable features  
   → Reduced model rollout time by **50%**
-- **Rated Top Performer** in Gartner’s Data Science team (2022–2023)
+- **Rated Top Performer** in Gartner's Data Science team (2022–2023)
 
 ---
 
 ### Intern — *Procter & Gamble*
 **May 2019 – Jul 2019**
 - Designed a roadmap for **Industry 4.0 automation**, improving quality-check efficiency by **150×**
-- Evaluated 100+ vendors and achieved **90% cost savings** through localization and POC testing
+- Evaluated 100+ vendors and achieved **90% cost savings** through localization and proof-of-concept (POC) testing
+
+---
+
+### Intern — *SparroSense*
+**May 2018 – Jul 2018**
+- Automated transcript generation for client-agent calls through speech-to-text transmission
+- Reproduced Facebook AI Research Wav2letter model in PyTorch and TensorFlow, achieving improved speed over the previously deployed DeepSpeech model with a letter error rate of **28%** and word error rate of **40%**
 
 ---
 
 ## Academic Projects
 
-### Master’s Scholar — *IIT Delhi*
+### Master's Scholar — *IIT Delhi*
 **Jul 2019 – Jun 2021**
-- Modelled **monsoon intensity prediction** using Sea Surface Temperature data as a spatiotemporal problem with a **ConvLSTM backbone**
-- Achieved **1-year prediction lead time**, outperforming all baselines during major ENSO events (1997, 2009, 2015)
-- Captured **87% variance** overall; published in *IEEE GRSL*
-- Extended prediction lead time to **16 months** using autoencoder-based ConvLSTM  
+- Modelled **monsoon intensity prediction** using Sea Surface Temperature (SST) data as a spatiotemporal problem with a **ConvLSTM backbone**
+- Achieved **1-year prediction lead time**, outperforming all baselines during major ENSO warm-phase events (1997, 2009, 2015)
+- Captured **87% variance** overall; published in *IEEE Geoscience and Remote Sensing Letters (GRSL)*
+- Extended prediction lead time to **16 months** using an autoencoder-based ConvLSTM architecture  
   - Captured **99% SST variability** with **91% structural similarity**
 
 ---
 
 ### Computer Vision & Imaging — *UCSD*
-- **Wavelet Denoising:** Designed a wavelet-guided diffusion strategy that integrates frequency-domain constraints to preserve fine-grained structure during denoising
-- **Amodal Segmentation:** Built a latent diffusion framework with prompt tuning and LMM embeddings to reconstruct occluded object boundaries
-- **Artistic Motion Blur:** Engineered a model to induce controllable motion blur by simulating shutter speed and physical camera dynamics
-- **Medical Imaging (CT):** Quantified how CT resolution shifts affect coronary artery calcium scoring and developed correction factors
+- **Wavelet Denoising:** Implemented a wavelet-guided diffusion model in PyTorch integrating frequency-domain constraints to preserve fine-grained structural details during denoising
+- **Amodal Segmentation:** Built a latent diffusion framework with prompt tuning and Large Multimodal Model (LMM) embeddings to reconstruct occluded object boundaries
+- **Artistic Motion Blur:** Engineered a deep learning model to induce controllable motion blur by simulating shutter speed and physical camera dynamics
+- **Medical Imaging (CT):** Quantified how CT resolution shifts affect coronary artery calcium scoring and developed correction factors to mitigate measurement limitations
 
 ### Agentic & NLP Systems — *UCSD*
-- **Agentic AI Systems:** Building an autonomous agent that generates synthetic electricity bills to simulate complex usage patterns for benchmarking and consumer Q&A
+- **Agentic AI Systems:** Developed an autonomous AI agent using Python and LLM APIs to generate synthetic electricity bills, simulating complex usage patterns for model benchmarking and consumer Q&A
 
 ### Creative Projects
-- **Workout Pose Estimation:** Developed a solution using pose estimation techniques (e.g., Mediapipe) to provide real-time correction for workout form. The tool runs entirely locally, processes any YouTube video (≤2 mins) as input, requires only a single camera, and does not need you to carry your phone.
+- **Workout Pose Estimation:** Developed a real-time workout form correction tool using pose estimation (MediaPipe) that runs entirely locally, processes any YouTube video (≤2 mins) as input, requires only a single camera, and needs no phone
 
 ---
 
@@ -206,10 +206,13 @@
   *CVPR 2024* — Shared First Author  
   🔗 https://arxiv.org/abs/2403.08848
 
-- **Prediction of ENSO beyond Spring Predictability Barrier using Deep ConvLSTM Networks**  
-  *IEEE GRSL* — First Author  
+- **GAME: Game-Aware Multimodal Embeddings for Real-Time Gameplay Understanding**  
+  *Under Review* — First Author
+
+- **Prediction of ENSO beyond Spring Predictability Barrier using Deep Convolutional LSTM Networks**  
+  *IEEE Geoscience and Remote Sensing Letters (GRSL)* — First Author  
   🔗 https://ieeexplore.ieee.org/document/9244083
 
 - **Prediction of Synoptic-Scale Sea Level Pressure over Indian Monsoon Region Using Deep Learning**  
-  *IEEE GRSL* — Second Author  
+  *IEEE Geoscience and Remote Sensing Letters (GRSL)* — Second Author  
   🔗 https://ieeexplore.ieee.org/document/9507518
