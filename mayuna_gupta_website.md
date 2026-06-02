@@ -5,8 +5,7 @@
     📍 San Diego, California<br>
     📧 <a href="mailto:mayunagupta@gmail.com">mayunagupta@gmail.com</a><br>
     🔗 <a href="https://www.linkedin.com/in/mayuna-gupta/">LinkedIn</a><br>
-    🔗 <a href="https://scholar.google.com/citations?user=1OJyElQAAAAJ&hl=en">Google Scholar</a><br>
-    🌐 <a href="https://mayunagupta.github.io">Website</a>
+    🔗 <a href="https://scholar.google.com/citations?user=1OJyElQAAAAJ&hl=en">Google Scholar</a>
   </div>
   <img src="mg.jpeg" alt="Mayuna Gupta Photo" style="width:120px;height:120px;object-fit:cover;border-radius:50%;margin-left:24px;box-shadow:0 2px 6px rgba(0,0,0,0.12);" />
 </div>
