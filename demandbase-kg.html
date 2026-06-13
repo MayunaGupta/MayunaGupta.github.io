@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Demandbase Knowledge Graph</title>
+<script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  display: flex;
+  height: 100vh; width: 100vw;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+}
+
+/* ── Sidebar ── */
+#sidebar {
+  width: 272px; min-width: 272px;
+  height: 100vh;
+  display: flex; flex-direction: column;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.07);
+  overflow-y: auto; overflow-x: hidden;
+  z-index: 10;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 transparent;
+}
+#sidebar::-webkit-scrollbar { width: 5px; }
+#sidebar::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
+
+#sidebar-header {
+  padding: 16px 16px 14px;
+  background: #1e293b; color: #fff; flex-shrink: 0;
+}
+#back-link {
+  display: inline-block; margin-bottom: 10px;
+  font-size: 11px; color: #94a3b8; text-decoration: none;
+  letter-spacing: 0.03em; transition: color 0.15s;
+}
+#back-link:hover { color: #fff; }
+#sidebar-header h1 { font-size: 14px; font-weight: 700; }
+#sidebar-header p  { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+
+.section { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; }
+.section-title {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: #94a3b8; margin-bottom: 9px;
+}
+
+/* ── Search & Path inputs ── */
+.input-row { display: flex; gap: 6px; align-items: center; }
+.node-input {
+  flex: 1; padding: 7px 10px;
+  border: 1px solid #e2e8f0; border-radius: 7px;
+  font-size: 13px; outline: none;
+  background: #f8fafc; color: #1a1a2e;
+  transition: border-color 0.15s;
+}
+.node-input:focus { border-color: #4C72B0; background: #fff; }
+.node-input::placeholder { color: #b0bac4; }
+
+.ac-wrap { position: relative; flex: 1; }
+.ac-drop {
+  display: none; position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 7px;
+  max-height: 160px; overflow-y: auto; z-index: 100;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.ac-item { padding: 7px 10px; font-size: 13px; cursor: pointer; color: #1a1a2e; }
+.ac-item:hover { background: #f0f4ff; }
+.ac-sub { display: block; font-size: 10px; color: #94a3b8; margin-top: 1px; }
+
+.btn {
+  padding: 7px 13px; border: none; border-radius: 7px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s, opacity 0.15s; white-space: nowrap;
+}
+.btn-dark  { background: #1e293b; color: #fff; }
+.btn-dark:hover { background: #334155; }
+.btn-ghost { background: #f1f5f9; color: #475569; }
+.btn-ghost:hover { background: #e2e8f0; }
+.btn-blue  { background: #4C72B0; color: #fff; }
+.btn-blue:hover { background: #3b5a91; }
+
+.path-label {
+  font-size: 11px; font-weight: 700; color: #64748b;
+  width: 34px; flex-shrink: 0; text-align: right; padding-right: 6px;
+}
+.msg { font-size: 12px; min-height: 16px; margin-top: 6px; }
+.msg.ok   { color: #27ae60; }
+.msg.err  { color: #e05555; }
+.msg.info { color: #4C72B0; }
+
+/* Path result tags */
+#path-result { margin-top: 8px; display: none; }
+#path-result .path-tag {
+  display: inline-block; background: #f0f4ff; border: 1px solid #c7d7f5;
+  color: #2d4fa3; border-radius: 5px; padding: 2px 7px;
+  font-size: 11px; margin: 2px 2px 0 0; cursor: pointer;
+}
+#path-result .path-tag:hover { background: #dce8ff; }
+#path-hops { font-size: 11px; color: #64748b; margin-bottom: 4px; }
+
+/* ── Toggles ── */
+.toggle {
+  display: flex; align-items: center; gap: 7px;
+  padding: 4px 0; cursor: pointer; user-select: none;
+  font-size: 13px; color: #1a1a2e;
+}
+.toggle input[type="checkbox"] { display: none; }
+.check {
+  width: 16px; height: 16px; border: 2px solid #cbd5e1;
+  border-radius: 4px; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
+  transition: all 0.15s; font-size: 11px; color: #fff;
+}
+.toggle input:checked ~ .check { background: #1e293b; border-color: #1e293b; }
+.toggle input:checked ~ .check::after { content: "✓"; }
+.toggle input:not(:checked) ~ span:last-child { color: #b0bac4; }
+
+/* ── Edge rows ── */
+.edge-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 0; cursor: pointer; user-select: none;
+  font-size: 13px; color: #1a1a2e;
+}
+.edge-row input[type="checkbox"] { display: none; }
+.edge-row input:not(:checked) ~ span:last-child { color: #b0bac4; }
+.edge-line { width: 22px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+.edge-line.dashed { background: none !important; border-top: 3px dashed; height: 0; border-radius: 0; }
+
+/* ── Legend ── */
+.swatch { display: inline-block; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.12); }
+.swatch.circle { width: 13px; height: 13px; border-radius: 50%; }
+.swatch.box    { width: 13px; height: 9px;  border-radius: 3px; }
+.legend-row { display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 12px; color: #374151; }
+
+/* ── Graph canvas ── */
+#network { flex: 1; height: 100vh; min-width: 0; background: #f8f9fa; }
+
+/* ── Custom tooltip overlay ── */
+#tooltip {
+  position: fixed; z-index: 9999; pointer-events: none;
+  background: #fff; color: #222;
+  border: 1px solid #e2e8f0; border-radius: 11px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  padding: 14px 16px; max-width: 340px; width: max-content;
+  font-size: 13px; line-height: 1.55;
+  opacity: 0; transition: opacity 0.12s;
+  display: none;
+}
+#tooltip.visible { opacity: 1; display: block; }
+
+.tt-name { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 2px; }
+.tt-cat  { font-size: 12px; font-weight: 600; color: #4C72B0; margin-bottom: 5px; }
+.tt-row  { font-size: 12px; color: #555; margin-bottom: 2px; }
+.tt-hr   { border: none; border-top: 1px solid #f0f4f8; margin: 9px 0; }
+.tt-h    { font-size: 10px; font-weight: 700; text-transform: uppercase;
+           letter-spacing: 0.07em; color: #94a3b8; margin: 6px 0 3px; }
+.tt-p    { font-size: 13px; color: #374151; margin-bottom: 3px; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div id="sidebar-header">
+    <a href="https://mayunagupta.github.io" id="back-link">&#8592; Portfolio</a>
+    <h1>Demandbase Knowledge Graph</h1>
+    <p>Hover nodes &middot; Drag to pan &middot; Scroll to zoom</p>
+  </div>
+
+  <!-- Navigate -->
+  <div class="section">
+    <div class="section-title">Navigate to Node</div>
+    <div class="input-row">
+      <div class="ac-wrap">
+        <input id="search-input" class="node-input" type="text" placeholder="Search nodes&hellip;" autocomplete="off" spellcheck="false">
+        <div id="search-drop" class="ac-drop"></div>
+      </div>
+      <button class="btn btn-dark" onclick="runSearch()">Go</button>
+    </div>
+    <div id="search-msg" class="msg"></div>
+  </div>
+
+  <!-- Path finder -->
+  <div class="section">
+    <div class="section-title">Path Between Nodes</div>
+    <div class="input-row" style="margin-bottom:6px">
+      <span class="path-label">From</span>
+      <div class="ac-wrap">
+        <input id="path-from" class="node-input" type="text" placeholder="Start node&hellip;" autocomplete="off" spellcheck="false">
+        <div id="from-drop" class="ac-drop"></div>
+      </div>
+    </div>
+    <div class="input-row">
+      <span class="path-label">To</span>
+      <div class="ac-wrap">
+        <input id="path-to" class="node-input" type="text" placeholder="End node&hellip;" autocomplete="off" spellcheck="false">
+        <div id="to-drop" class="ac-drop"></div>
+      </div>
+    </div>
+    <div class="input-row" style="margin-top:8px">
+      <button class="btn btn-blue" style="flex:1" onclick="filterToPath()">Filter to Path</button>
+      <button class="btn btn-ghost" onclick="clearPath()">Clear</button>
+    </div>
+    <div id="path-msg" class="msg"></div>
+    <div id="path-result">
+      <div id="path-hops"></div>
+      <div id="path-tags"></div>
+    </div>
+  </div>
+
+  <!-- Companies toggle -->
+  <div class="section">
+    <div class="section-title">Companies</div>
+    <label class="toggle">
+      <input type="checkbox" checked data-group="company" onchange="toggleNodeGroup(this)">
+      <span class="check"></span>
+      <span>Show all companies</span>
+    </label>
+  </div>
+
+  <!-- Concept cluster toggles -->
+  <div class="section">
+    <div class="section-title">Concept Clusters</div>
+    <label class="toggle"><input type="checkbox" checked data-group="Strategy" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#4C72B0"></span><span>Strategy</span></label>
+<label class="toggle"><input type="checkbox" checked data-group="Data" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#55A868"></span><span>Data</span></label>
+<label class="toggle"><input type="checkbox" checked data-group="Platform" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#DD8452"></span><span>Platform</span></label>
+<label class="toggle"><input type="checkbox" checked data-group="Programmatic" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#C44E52"></span><span>Programmatic</span></label>
+<label class="toggle"><input type="checkbox" checked data-group="Metrics" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#8B2FC9"></span><span>Metrics</span></label>
+<label class="toggle"><input type="checkbox" checked data-group="Targeting" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#4EAED1"></span><span>Targeting</span></label>
+<label class="toggle"><input type="checkbox" checked data-group="Attribution" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#937860"></span><span>Attribution</span></label>
+<label class="toggle"><input type="checkbox" checked data-group="Identity" onchange="toggleNodeGroup(this)"><span class="check"></span><span class="swatch box" style="background:#BCB22C"></span><span>Identity</span></label>
+  </div>
+
+  <!-- Edge type toggles -->
+  <div class="section">
+    <div class="section-title">Edge Types</div>
+    <label class="edge-row">
+      <input type="checkbox" checked data-edge="competitor" onchange="toggleEdgeGroup(this)">
+      <span class="edge-line" style="background:#e05555"></span>
+      <span>Competitors</span>
+    </label>
+    <label class="edge-row">
+      <input type="checkbox" checked data-edge="partner" onchange="toggleEdgeGroup(this)">
+      <span class="edge-line dashed" style="border-color:#f5a623"></span>
+      <span>Partner / Integrates</span>
+    </label>
+    <label class="edge-row">
+      <input type="checkbox" checked data-edge="uses" onchange="toggleEdgeGroup(this)">
+      <span class="edge-line" style="background:#27ae60"></span>
+      <span>Company &rarr; Concept</span>
+    </label>
+    <label class="edge-row">
+      <input type="checkbox" checked data-edge="relation" onchange="toggleEdgeGroup(this)">
+      <span class="edge-line" style="background:#4488cc"></span>
+      <span>Concept Relations</span>
+    </label>
+  </div>
+
+  <!-- Legend -->
+  <div class="section">
+    <div class="section-title">Company Types</div>
+    <div class="legend-row"><span class="swatch circle" style="background:#4C72B0"></span><span>ABM Platform</span></div>
+<div class="legend-row"><span class="swatch circle" style="background:#8B2FC9"></span><span>Revenue AI</span></div>
+<div class="legend-row"><span class="swatch circle" style="background:#DD8452"></span><span>B2B Data & Intelligence</span></div>
+<div class="legend-row"><span class="swatch circle" style="background:#E68A2E"></span><span>B2B Data Enrichment</span></div>
+<div class="legend-row"><span class="swatch circle" style="background:#55A868"></span><span>Intent Data</span></div>
+<div class="legend-row"><span class="swatch circle" style="background:#4EAED1"></span><span>B2B Advertising & Intent</span></div>
+<div class="legend-row"><span class="swatch circle" style="background:#C44E52"></span><span>Review Platform / Intent Data</span></div>
+<div class="legend-row"><span class="swatch circle" style="background:#937860"></span><span>B2B Media / Intent Data</span></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Concept Clusters Key</div>
+    <div class="legend-row"><span class="swatch box" style="background:#4C72B0"></span><span>Strategy</span></div>
+<div class="legend-row"><span class="swatch box" style="background:#55A868"></span><span>Data</span></div>
+<div class="legend-row"><span class="swatch box" style="background:#DD8452"></span><span>Platform</span></div>
+<div class="legend-row"><span class="swatch box" style="background:#C44E52"></span><span>Programmatic</span></div>
+<div class="legend-row"><span class="swatch box" style="background:#8B2FC9"></span><span>Metrics</span></div>
+<div class="legend-row"><span class="swatch box" style="background:#4EAED1"></span><span>Targeting</span></div>
+<div class="legend-row"><span class="swatch box" style="background:#937860"></span><span>Attribution</span></div>
+<div class="legend-row"><span class="swatch box" style="background:#BCB22C"></span><span>Identity</span></div>
+  </div>
+</div><!-- /sidebar -->
+
+<div id="network"></div>
+<div id="tooltip"></div>
+
+<script>
+const rawNodes    = [{"id": "Demandbase", "label": "Demandbase", "group": "company", "color": {"background": "#4C72B0", "border": "#fff", "highlight": {"background": "#4C72B0", "border": "#000"}, "hover": {"background": "#4C72B0", "border": "#fff"}}, "size": 44, "shape": "ellipse", "borderWidth": 4, "font": {"size": 15, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "6sense", "label": "6sense", "group": "company", "color": {"background": "#8B2FC9", "border": "#00000033", "highlight": {"background": "#8B2FC9", "border": "#000"}, "hover": {"background": "#8B2FC9", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Terminus", "label": "Terminus", "group": "company", "color": {"background": "#4C72B0", "border": "#00000033", "highlight": {"background": "#4C72B0", "border": "#000"}, "hover": {"background": "#4C72B0", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "RollWorks", "label": "RollWorks", "group": "company", "color": {"background": "#4C72B0", "border": "#00000033", "highlight": {"background": "#4C72B0", "border": "#000"}, "hover": {"background": "#4C72B0", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "ZoomInfo", "label": "ZoomInfo", "group": "company", "color": {"background": "#DD8452", "border": "#00000033", "highlight": {"background": "#DD8452", "border": "#000"}, "hover": {"background": "#DD8452", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Clearbit", "label": "Clearbit", "group": "company", "color": {"background": "#E68A2E", "border": "#00000033", "highlight": {"background": "#E68A2E", "border": "#000"}, "hover": {"background": "#E68A2E", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Bombora", "label": "Bombora", "group": "company", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Madison Logic", "label": "Madison Logic", "group": "company", "color": {"background": "#4EAED1", "border": "#00000033", "highlight": {"background": "#4EAED1", "border": "#000"}, "hover": {"background": "#4EAED1", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "G2", "label": "G2", "group": "company", "color": {"background": "#C44E52", "border": "#00000033", "highlight": {"background": "#C44E52", "border": "#000"}, "hover": {"background": "#C44E52", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "TechTarget", "label": "TechTarget", "group": "company", "color": {"background": "#937860", "border": "#00000033", "highlight": {"background": "#937860", "border": "#000"}, "hover": {"background": "#937860", "border": "#fff"}}, "size": 28, "shape": "ellipse", "borderWidth": 1, "font": {"size": 13, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "ABM", "label": "ABM", "group": "Strategy", "color": {"background": "#4C72B0", "border": "#00000033", "highlight": {"background": "#4C72B0", "border": "#000"}, "hover": {"background": "#4C72B0", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Demand Gen", "label": "Demand Gen", "group": "Strategy", "color": {"background": "#4C72B0", "border": "#00000033", "highlight": {"background": "#4C72B0", "border": "#000"}, "hover": {"background": "#4C72B0", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Pipeline Marketing", "label": "Pipeline Marketing", "group": "Strategy", "color": {"background": "#4C72B0", "border": "#00000033", "highlight": {"background": "#4C72B0", "border": "#000"}, "hover": {"background": "#4C72B0", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "GTM", "label": "GTM", "group": "Strategy", "color": {"background": "#4C72B0", "border": "#00000033", "highlight": {"background": "#4C72B0", "border": "#000"}, "hover": {"background": "#4C72B0", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Intent Data", "label": "Intent Data", "group": "Data", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "1st-Party Intent", "label": "1st-Party Intent", "group": "Data", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "2nd-Party Intent", "label": "2nd-Party Intent", "group": "Data", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "3rd-Party Intent", "label": "3rd-Party Intent", "group": "Data", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Firmographics", "label": "Firmographics", "group": "Data", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Technographics", "label": "Technographics", "group": "Data", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Psychographics", "label": "Psychographics", "group": "Data", "color": {"background": "#55A868", "border": "#00000033", "highlight": {"background": "#55A868", "border": "#000"}, "hover": {"background": "#55A868", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "DSP", "label": "DSP", "group": "Platform", "color": {"background": "#DD8452", "border": "#00000033", "highlight": {"background": "#DD8452", "border": "#000"}, "hover": {"background": "#DD8452", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "DMP", "label": "DMP", "group": "Platform", "color": {"background": "#DD8452", "border": "#00000033", "highlight": {"background": "#DD8452", "border": "#000"}, "hover": {"background": "#DD8452", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "CDP", "label": "CDP", "group": "Platform", "color": {"background": "#DD8452", "border": "#00000033", "highlight": {"background": "#DD8452", "border": "#000"}, "hover": {"background": "#DD8452", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "MAP", "label": "MAP", "group": "Platform", "color": {"background": "#DD8452", "border": "#00000033", "highlight": {"background": "#DD8452", "border": "#000"}, "hover": {"background": "#DD8452", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "CRM", "label": "CRM", "group": "Platform", "color": {"background": "#DD8452", "border": "#00000033", "highlight": {"background": "#DD8452", "border": "#000"}, "hover": {"background": "#DD8452", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "SSP", "label": "SSP", "group": "Platform", "color": {"background": "#DD8452", "border": "#00000033", "highlight": {"background": "#DD8452", "border": "#000"}, "hover": {"background": "#DD8452", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Programmatic Advertising", "label": "Programmatic Advertising", "group": "Programmatic", "color": {"background": "#C44E52", "border": "#00000033", "highlight": {"background": "#C44E52", "border": "#000"}, "hover": {"background": "#C44E52", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "RTB", "label": "RTB", "group": "Programmatic", "color": {"background": "#C44E52", "border": "#00000033", "highlight": {"background": "#C44E52", "border": "#000"}, "hover": {"background": "#C44E52", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "PMP", "label": "PMP", "group": "Programmatic", "color": {"background": "#C44E52", "border": "#00000033", "highlight": {"background": "#C44E52", "border": "#000"}, "hover": {"background": "#C44E52", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Programmatic Direct", "label": "Programmatic Direct", "group": "Programmatic", "color": {"background": "#C44E52", "border": "#00000033", "highlight": {"background": "#C44E52", "border": "#000"}, "hover": {"background": "#C44E52", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "MQL", "label": "MQL", "group": "Metrics", "color": {"background": "#8B2FC9", "border": "#00000033", "highlight": {"background": "#8B2FC9", "border": "#000"}, "hover": {"background": "#8B2FC9", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "MQA", "label": "MQA", "group": "Metrics", "color": {"background": "#8B2FC9", "border": "#00000033", "highlight": {"background": "#8B2FC9", "border": "#000"}, "hover": {"background": "#8B2FC9", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "SQL", "label": "SQL", "group": "Metrics", "color": {"background": "#8B2FC9", "border": "#00000033", "highlight": {"background": "#8B2FC9", "border": "#000"}, "hover": {"background": "#8B2FC9", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Engagement Score", "label": "Engagement Score", "group": "Metrics", "color": {"background": "#8B2FC9", "border": "#00000033", "highlight": {"background": "#8B2FC9", "border": "#000"}, "hover": {"background": "#8B2FC9", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Surge Score", "label": "Surge Score", "group": "Metrics", "color": {"background": "#8B2FC9", "border": "#00000033", "highlight": {"background": "#8B2FC9", "border": "#000"}, "hover": {"background": "#8B2FC9", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "CPM", "label": "CPM", "group": "Metrics", "color": {"background": "#8B2FC9", "border": "#00000033", "highlight": {"background": "#8B2FC9", "border": "#000"}, "hover": {"background": "#8B2FC9", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "ICP", "label": "ICP", "group": "Targeting", "color": {"background": "#4EAED1", "border": "#00000033", "highlight": {"background": "#4EAED1", "border": "#000"}, "hover": {"background": "#4EAED1", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "TAM", "label": "TAM", "group": "Targeting", "color": {"background": "#4EAED1", "border": "#00000033", "highlight": {"background": "#4EAED1", "border": "#000"}, "hover": {"background": "#4EAED1", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "TAL", "label": "TAL", "group": "Targeting", "color": {"background": "#4EAED1", "border": "#00000033", "highlight": {"background": "#4EAED1", "border": "#000"}, "hover": {"background": "#4EAED1", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Buying Committee", "label": "Buying Committee", "group": "Targeting", "color": {"background": "#4EAED1", "border": "#00000033", "highlight": {"background": "#4EAED1", "border": "#000"}, "hover": {"background": "#4EAED1", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Dark Funnel", "label": "Dark Funnel", "group": "Targeting", "color": {"background": "#4EAED1", "border": "#00000033", "highlight": {"background": "#4EAED1", "border": "#000"}, "hover": {"background": "#4EAED1", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Attribution", "label": "Attribution", "group": "Attribution", "color": {"background": "#937860", "border": "#00000033", "highlight": {"background": "#937860", "border": "#000"}, "hover": {"background": "#937860", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "First-Touch Attribution", "label": "First-Touch Attribution", "group": "Attribution", "color": {"background": "#937860", "border": "#00000033", "highlight": {"background": "#937860", "border": "#000"}, "hover": {"background": "#937860", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Last-Touch Attribution", "label": "Last-Touch Attribution", "group": "Attribution", "color": {"background": "#937860", "border": "#00000033", "highlight": {"background": "#937860", "border": "#000"}, "hover": {"background": "#937860", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Multi-Touch Attribution", "label": "Multi-Touch Attribution", "group": "Attribution", "color": {"background": "#937860", "border": "#00000033", "highlight": {"background": "#937860", "border": "#000"}, "hover": {"background": "#937860", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "IP Deanonymisation", "label": "IP Deanonymisation", "group": "Identity", "color": {"background": "#BCB22C", "border": "#00000033", "highlight": {"background": "#BCB22C", "border": "#000"}, "hover": {"background": "#BCB22C", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Identity Resolution", "label": "Identity Resolution", "group": "Identity", "color": {"background": "#BCB22C", "border": "#00000033", "highlight": {"background": "#BCB22C", "border": "#000"}, "hover": {"background": "#BCB22C", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}, {"id": "Reverse IP Lookup", "label": "Reverse IP Lookup", "group": "Identity", "color": {"background": "#BCB22C", "border": "#00000033", "highlight": {"background": "#BCB22C", "border": "#000"}, "hover": {"background": "#BCB22C", "border": "#fff"}}, "size": 20, "shape": "box", "margin": 8, "font": {"size": 12, "color": "#111", "strokeWidth": 3, "strokeColor": "#ffffff"}}];
+const rawEdges    = [{"id": 1, "from": "Demandbase", "to": "6sense", "label": "", "title": "Direct competitor (ABM/Revenue AI)", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 2, "from": "Demandbase", "to": "Terminus", "label": "", "title": "Direct competitor (ABM execution)", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 3, "from": "Demandbase", "to": "RollWorks", "label": "Direct competitor (ABM ads)", "title": "Direct competitor (ABM ads)", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 4, "from": "Demandbase", "to": "ZoomInfo", "label": "", "title": "Competes on data + sales intelligence", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 5, "from": "Demandbase", "to": "Clearbit", "label": "", "title": "Competes on visitor deanonymisation", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 6, "from": "6sense", "to": "Terminus", "label": "", "title": "Direct competitor (ABM platform)", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 7, "from": "6sense", "to": "RollWorks", "label": "Compete on predictive + ads", "title": "Compete on predictive + ads", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 8, "from": "6sense", "to": "ZoomInfo", "label": "Compete on sales intelligence", "title": "Compete on sales intelligence", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 9, "from": "Demandbase", "to": "Bombora", "label": "", "title": "Resells / integrates Bombora intent", "edgeGroup": "partner", "color": {"color": "#f5a623", "opacity": 0.8}, "dashes": true, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 10, "from": "6sense", "to": "Bombora", "label": "Integrates Bombora intent", "title": "Integrates Bombora intent", "edgeGroup": "partner", "color": {"color": "#f5a623", "opacity": 0.8}, "dashes": true, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 11, "from": "Terminus", "to": "Bombora", "label": "Integrates Bombora intent", "title": "Integrates Bombora intent", "edgeGroup": "partner", "color": {"color": "#f5a623", "opacity": 0.8}, "dashes": true, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 12, "from": "RollWorks", "to": "Bombora", "label": "Integrates Bombora intent", "title": "Integrates Bombora intent", "edgeGroup": "partner", "color": {"color": "#f5a623", "opacity": 0.8}, "dashes": true, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 13, "from": "Madison Logic", "to": "Bombora", "label": "Partners for intent activation", "title": "Partners for intent activation", "edgeGroup": "partner", "color": {"color": "#f5a623", "opacity": 0.8}, "dashes": true, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 14, "from": "Demandbase", "to": "Madison Logic", "label": "Compete on B2B advertising", "title": "Compete on B2B advertising", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 15, "from": "G2", "to": "Bombora", "label": "Compete as intent data sources", "title": "Compete as intent data sources", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 16, "from": "TechTarget", "to": "Bombora", "label": "Compete as intent data sources", "title": "Compete as intent data sources", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 17, "from": "TechTarget", "to": "Madison Logic", "label": "", "title": "Compete on content syndication + intent", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 18, "from": "Clearbit", "to": "ZoomInfo", "label": "Compete on B2B data enrichment", "title": "Compete on B2B data enrichment", "edgeGroup": "competitor", "color": {"color": "#e05555", "opacity": 0.8}, "dashes": false, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 19, "from": "ZoomInfo", "to": "Bombora", "label": "", "title": "ZoomInfo bundles intent (partnership)", "edgeGroup": "partner", "color": {"color": "#f5a623", "opacity": 0.8}, "dashes": true, "width": 2, "font": {"size": 10, "color": "#333", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.6}}, "smooth": {"type": "curvedCW", "roundness": 0.18}}, {"id": 20, "from": "Intent Data", "to": "1st-Party Intent", "label": "includes", "title": "includes", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 21, "from": "Intent Data", "to": "2nd-Party Intent", "label": "includes", "title": "includes", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 22, "from": "Intent Data", "to": "3rd-Party Intent", "label": "includes", "title": "includes", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 23, "from": "Intent Data", "to": "Surge Score", "label": "quantified by", "title": "quantified by", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 24, "from": "ICP", "to": "TAM", "label": "filters", "title": "filters", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 25, "from": "ICP", "to": "TAL", "label": "produces", "title": "produces", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 26, "from": "ICP", "to": "Firmographics", "label": "defined by", "title": "defined by", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 27, "from": "ICP", "to": "Technographics", "label": "defined by", "title": "defined by", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 28, "from": "ICP", "to": "Psychographics", "label": "defined by", "title": "defined by", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 29, "from": "TAL", "to": "ABM", "label": "enables", "title": "enables", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 30, "from": "ABM", "to": "MQA", "label": "replaces MQL with", "title": "replaces MQL with", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 31, "from": "ABM", "to": "Buying Committee", "label": "targets", "title": "targets", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 32, "from": "ABM", "to": "Engagement Score", "label": "measured by", "title": "measured by", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 33, "from": "ABM", "to": "Dark Funnel", "label": "illuminates", "title": "illuminates", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 34, "from": "ABM", "to": "Pipeline Marketing", "label": "evolves into", "title": "evolves into", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 35, "from": "ABM", "to": "GTM", "label": "shapes", "title": "shapes", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 36, "from": "Demand Gen", "to": "MQL", "label": "produces", "title": "produces", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 37, "from": "MQL", "to": "MQA", "label": "account-level version", "title": "account-level version", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 38, "from": "MQL", "to": "SQL", "label": "converts to", "title": "converts to", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 39, "from": "ABM", "to": "MAP", "label": "integrates with", "title": "integrates with", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 40, "from": "ABM", "to": "CRM", "label": "syncs to", "title": "syncs to", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 41, "from": "ABM", "to": "CDP", "label": "feeds data to", "title": "feeds data to", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 42, "from": "CDP", "to": "DMP", "label": "supersedes for 1st-party", "title": "supersedes for 1st-party", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 43, "from": "DSP", "to": "Programmatic Advertising", "label": "executes", "title": "executes", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 44, "from": "SSP", "to": "Programmatic Advertising", "label": "supplies inventory to", "title": "supplies inventory to", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 45, "from": "Programmatic Advertising", "to": "RTB", "label": "mechanism", "title": "mechanism", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 46, "from": "Programmatic Advertising", "to": "PMP", "label": "premium variant", "title": "premium variant", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 47, "from": "Programmatic Advertising", "to": "Programmatic Direct", "label": "guaranteed variant", "title": "guaranteed variant", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 48, "from": "Attribution", "to": "First-Touch Attribution", "label": "model", "title": "model", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 49, "from": "Attribution", "to": "Last-Touch Attribution", "label": "model", "title": "model", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 50, "from": "Attribution", "to": "Multi-Touch Attribution", "label": "model", "title": "model", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 51, "from": "Pipeline Marketing", "to": "Attribution", "label": "requires", "title": "requires", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 52, "from": "IP Deanonymisation", "to": "Identity Resolution", "label": "subset of", "title": "subset of", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 53, "from": "IP Deanonymisation", "to": "Reverse IP Lookup", "label": "uses", "title": "uses", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 54, "from": "Identity Resolution", "to": "ABM", "label": "enables", "title": "enables", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 55, "from": "Intent Data", "to": "Dark Funnel", "label": "reveals", "title": "reveals", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 56, "from": "1st-Party Intent", "to": "IP Deanonymisation", "label": "powered by", "title": "powered by", "edgeGroup": "relation", "color": {"color": "#4488cc", "opacity": 0.7}, "dashes": false, "width": 1.2, "font": {"size": 10, "color": "#2255aa", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 57, "from": "Demandbase", "to": "ABM", "label": "pioneers", "title": "pioneers", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 58, "from": "Demandbase", "to": "IP Deanonymisation", "label": "core tech", "title": "core tech", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 59, "from": "Demandbase", "to": "Intent Data", "label": "activates", "title": "activates", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 60, "from": "Demandbase", "to": "DSP", "label": "owns B2B DSP", "title": "owns B2B DSP", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 61, "from": "Demandbase", "to": "TAL", "label": "targets", "title": "targets", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 62, "from": "Demandbase", "to": "MQA", "label": "measures by", "title": "measures by", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 63, "from": "6sense", "to": "Dark Funnel", "label": "illuminates", "title": "illuminates", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 64, "from": "6sense", "to": "Intent Data", "label": "predicts from", "title": "predicts from", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 65, "from": "6sense", "to": "Buying Committee", "label": "identifies", "title": "identifies", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 66, "from": "6sense", "to": "ABM", "label": "powers", "title": "powers", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 67, "from": "Terminus", "to": "ABM", "label": "executes", "title": "executes", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 68, "from": "Terminus", "to": "Multi-Touch Attribution", "label": "uses", "title": "uses", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 69, "from": "RollWorks", "to": "ABM", "label": "executes", "title": "executes", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 70, "from": "RollWorks", "to": "Programmatic Advertising", "label": "runs", "title": "runs", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 71, "from": "ZoomInfo", "to": "Firmographics", "label": "provides", "title": "provides", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 72, "from": "ZoomInfo", "to": "Technographics", "label": "provides", "title": "provides", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 73, "from": "Clearbit", "to": "IP Deanonymisation", "label": "provides", "title": "provides", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 74, "from": "Clearbit", "to": "Firmographics", "label": "enriches", "title": "enriches", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 75, "from": "Bombora", "to": "3rd-Party Intent", "label": "defines", "title": "defines", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 76, "from": "Bombora", "to": "Surge Score", "label": "produces", "title": "produces", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 77, "from": "Madison Logic", "to": "Intent Data", "label": "activates", "title": "activates", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 78, "from": "Madison Logic", "to": "Programmatic Advertising", "label": "runs", "title": "runs", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 79, "from": "G2", "to": "2nd-Party Intent", "label": "provides", "title": "provides", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 80, "from": "TechTarget", "to": "2nd-Party Intent", "label": "provides", "title": "provides", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}, {"id": 81, "from": "TechTarget", "to": "PMP", "label": "sells via", "title": "sells via", "edgeGroup": "uses", "color": {"color": "#27ae60", "opacity": 0.7}, "dashes": false, "width": 1.5, "font": {"size": 10, "color": "#1a7a44", "strokeWidth": 2, "strokeColor": "#fff", "align": "middle"}, "arrows": {"to": {"enabled": true, "scaleFactor": 0.5}}, "smooth": {"type": "curvedCW", "roundness": 0.12}}];
+const tooltipData = {"Demandbase": "<div class=\"tt-name\">Demandbase</div><div class=\"tt-cat\">ABM Platform</div><div class=\"tt-row\">Founded 2006 &nbsp;&middot;&nbsp; San Francisco, CA</div><div class=\"tt-row\">Funding: Public (NASDAQ: DBASE, 2024 IPO)</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">Pioneered B2B programmatic advertising; expanded into full ABM suite. Acquired Engagio (2020) to add CRM/engagement layer. Owns first-party intent via site-visitor deanonymisation.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Deanonymises anonymous web traffic at account level (IP-based)</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">ABM Platform, Advertising Cloud, Data Cloud, Sales Intelligence</div>", "6sense": "<div class=\"tt-name\">6sense</div><div class=\"tt-cat\">Revenue AI</div><div class=\"tt-row\">Founded 2013 &nbsp;&middot;&nbsp; San Francisco, CA</div><div class=\"tt-row\">Funding: Series F, $200M+ raised</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">AI-first platform predicting buyer stage before intent signals surface. Strong at dark-funnel visibility — captures research happening off your site.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Predictive AI to surface anonymous buying teams in dark funnel</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">Revenue AI for Marketing, Revenue AI for Sales, Conversational Email</div>", "Terminus": "<div class=\"tt-name\">Terminus</div><div class=\"tt-cat\">ABM Platform</div><div class=\"tt-row\">Founded 2014 &nbsp;&middot;&nbsp; Atlanta, GA</div><div class=\"tt-row\">Funding: Acquired by DemandScience (2023)</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">One of the original 'ABM pure-plays'. Acquired Sigstr (email sig ads), BrightFunnel (attribution), and SetLogik (data). Strong on multi-channel ABM execution.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Multi-channel ABM execution (ads + email + chat + web) in one platform</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">Account Hub, Advertising, Email Experiences, Chat</div>", "RollWorks": "<div class=\"tt-name\">RollWorks</div><div class=\"tt-cat\">ABM Platform</div><div class=\"tt-row\">Founded 2018 &nbsp;&middot;&nbsp; San Francisco, CA</div><div class=\"tt-row\">Funding: Division of NextRoll (private)</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">Division of NextRoll (AdRoll parent). Focused on mid-market ABM. Leverages NextRoll's large first-party ad network dataset.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Price-competitive ABM for mid-market with strong ad-network reach</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">Account-Based Advertising, Journey Stages, Site Visitor Intelligence</div>", "ZoomInfo": "<div class=\"tt-name\">ZoomInfo</div><div class=\"tt-cat\">B2B Data &amp; Intelligence</div><div class=\"tt-row\">Founded 2007 &nbsp;&middot;&nbsp; Vancouver, WA</div><div class=\"tt-row\">Funding: Public (NASDAQ: ZI)</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">Largest B2B contact/company database. Grew via acquisitions (DiscoverOrg, Chorus.ai). Provides firmographic, contact, and conversation intelligence data.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Scale of verified B2B contact data + conversation intelligence</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">SalesOS, MarketingOS, TalentOS, Chorus (CI)</div>", "Clearbit": "<div class=\"tt-name\">Clearbit</div><div class=\"tt-cat\">B2B Data Enrichment</div><div class=\"tt-row\">Founded 2014 &nbsp;&middot;&nbsp; San Francisco, CA</div><div class=\"tt-row\">Funding: Acquired by HubSpot (2023)</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">Real-time company and contact enrichment via API. Acquired by HubSpot (2023) to power Breeze Intelligence. Known for Reveal (visitor deanonymisation) and Enrich APIs.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Real-time API-first enrichment; now native to HubSpot</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">Enrich, Reveal, Prospector, Forms</div>", "Bombora": "<div class=\"tt-name\">Bombora</div><div class=\"tt-cat\">Intent Data</div><div class=\"tt-row\">Founded 2014 &nbsp;&middot;&nbsp; New York, NY</div><div class=\"tt-row\">Funding: Series C, $80M raised</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">Runs the largest B2B 'intent co-op': 5,000+ publisher sites share anonymous content-consumption signals. Provides the third-party intent data layer that most ABM platforms resell.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Publisher co-op model — widest 3rd-party B2B intent coverage</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">Company Surge® Intent, Data Co-op</div>", "Madison Logic": "<div class=\"tt-name\">Madison Logic</div><div class=\"tt-cat\">B2B Advertising &amp; Intent</div><div class=\"tt-row\">Founded 2005 &nbsp;&middot;&nbsp; New York, NY</div><div class=\"tt-row\">Funding: Private, PE-backed</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">Content syndication and intent-driven B2B advertising network. Activates multi-channel campaigns (display, content, LinkedIn) against intent signals.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Combines intent data with premium B2B content syndication network</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">ActivateABM, ML Insights, Content Syndication</div>", "G2": "<div class=\"tt-name\">G2</div><div class=\"tt-cat\">Review Platform / Intent Data</div><div class=\"tt-row\">Founded 2012 &nbsp;&middot;&nbsp; Chicago, IL</div><div class=\"tt-row\">Funding: Series D, $157M raised</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">B2B software review marketplace. Sells 'Buyer Intent' data showing which accounts are researching your category or competitors on G2.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">Intent signals from active in-market software buyers on review site</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">G2 Buyer Intent, G2 Market Intelligence, G2 Reviews</div>", "TechTarget": "<div class=\"tt-name\">TechTarget</div><div class=\"tt-cat\">B2B Media / Intent Data</div><div class=\"tt-row\">Founded 1999 &nbsp;&middot;&nbsp; Newton, MA</div><div class=\"tt-row\">Funding: Public (NASDAQ: TTGT)</div><div class=\"tt-hr\"></div><div class=\"tt-h\">About</div><div class=\"tt-p\">Network of 150+ enterprise IT media sites. Sells 'purchase intent' data based on content consumption across its own editorial properties. Acquired BrightTALK (webinars) in 2021.</div><div class=\"tt-h\">Differentiator</div><div class=\"tt-p\">First-party intent from captive editorial audience (IT buyers)</div><div class=\"tt-h\">Products</div><div class=\"tt-p\">Priority Engine (intent), Content Syndication, Display Advertising</div>", "ABM": "<div class=\"tt-name\">ABM</div><div class=\"tt-cat\">Account-Based Marketing</div><div class=\"tt-row\">Cluster: <strong>Strategy</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Term coined ~2003 by ITSMA. Formalised the practice of treating individual high-value accounts as markets of one — reversing the traditional demand-gen funnel.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Marketing strategy that coordinates personalised campaigns across channels directed at a defined set of target accounts rather than broad audiences.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Prioritise marketing spend on accounts most likely to convert; align sales+marketing.</div>", "Demand Gen": "<div class=\"tt-name\">Demand Gen</div><div class=\"tt-cat\">Demand Generation</div><div class=\"tt-row\">Cluster: <strong>Strategy</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged in B2B marketing ~2000s as a contrast to lead gen — focus on pipeline, not just leads.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Creating awareness and interest across a broad audience to fill the top of funnel.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Content marketing, SEO, webinars, paid social — drive volume into pipeline.</div>", "Pipeline Marketing": "<div class=\"tt-name\">Pipeline Marketing</div><div class=\"tt-cat\">Pipeline Marketing</div><div class=\"tt-row\">Cluster: <strong>Strategy</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Coined ~2015 as ABM matured; shift from lead volume to revenue pipeline as the metric.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Marketing measured by its contribution to sales pipeline and closed revenue, not MQLs.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Aligns marketing KPIs to revenue; requires closed-loop attribution.</div>", "GTM": "<div class=\"tt-name\">GTM</div><div class=\"tt-cat\">Go-to-Market</div><div class=\"tt-row\">Cluster: <strong>Strategy</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Business strategy term, adopted widely in SaaS ~2010s to describe product launch and sales motions.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">The plan for how a company reaches customers — channels, segments, messaging, pricing.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Defines ICP, sales motion (PLG vs. sales-led), and marketing channels.</div>", "Intent Data": "<div class=\"tt-name\">Intent Data</div><div class=\"tt-cat\">Buyer Intent Data</div><div class=\"tt-row\">Cluster: <strong>Data</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged ~2012–2014 with Bombora's co-op model. Idea: content consumption signals buying intent. TechTarget had done topic-level signals earlier.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Behavioural signals indicating that an account is actively researching a topic or category. Comes in three tiers: 1st-party (your site), 2nd-party (partner/publisher), 3rd-party (co-op network like Bombora).</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Prioritise outreach to accounts 'in-market'; trigger personalised ads or sales sequences.</div>", "1st-Party Intent": "<div class=\"tt-name\">1st-Party Intent</div><div class=\"tt-cat\">First-Party Intent Data</div><div class=\"tt-row\">Cluster: <strong>Data</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Has always existed — your own web analytics. 'Intent' framing came with ABM era.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Signals from your own properties: page visits, content downloads, product usage.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Highest-quality signal; used to score accounts and trigger sales alerts.</div>", "2nd-Party Intent": "<div class=\"tt-name\">2nd-Party Intent</div><div class=\"tt-cat\">Second-Party Intent Data</div><div class=\"tt-row\">Cluster: <strong>Data</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Formalised as ABM data partnerships grew ~2016–2018.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Another company's first-party data shared directly with you (e.g. G2, TechTarget).</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Intent from review sites or media properties where buyers are actively evaluating.</div>", "3rd-Party Intent": "<div class=\"tt-name\">3rd-Party Intent</div><div class=\"tt-cat\">Third-Party Intent Data</div><div class=\"tt-row\">Cluster: <strong>Data</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Bombora co-op model (2014) standardised aggregated publisher signals.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Aggregated, anonymised signals from a publisher network (e.g. Bombora co-op).</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Widest coverage; used for top-of-funnel account discovery and ad targeting.</div>", "Firmographics": "<div class=\"tt-name\">Firmographics</div><div class=\"tt-cat\">Firmographic Data</div><div class=\"tt-row\">Cluster: <strong>Data</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">B2B analogue of demographics. Term used since 1980s market research.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Attributes describing a company: industry, size, revenue, employee count, location.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Build ICP filters; segment target account lists; qualify inbound leads.</div>", "Technographics": "<div class=\"tt-name\">Technographics</div><div class=\"tt-cat\">Technographic Data</div><div class=\"tt-row\">Cluster: <strong>Data</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged ~2010s with the rise of SaaS; HG Insights pioneered the category.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Data about what technology stack a company uses (CRM, ERP, cloud infra, etc.).</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Target accounts using a competitor or complementary tech; qualify fit.</div>", "Psychographics": "<div class=\"tt-name\">Psychographics</div><div class=\"tt-cat\">Psychographic / Cultural Fit Data</div><div class=\"tt-row\">Cluster: <strong>Data</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Consumer marketing term adapted to B2B ~2015–2020.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Signals about company culture, values, growth trajectory, and hiring patterns.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Identify accounts culturally aligned to your product; used in ICP refinement.</div>", "DSP": "<div class=\"tt-name\">DSP</div><div class=\"tt-cat\">Demand-Side Platform</div><div class=\"tt-row\">Cluster: <strong>Platform</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged ~2007–2009 with the rise of real-time bidding (RTB). Advertisers needed software to bid on programmatic inventory at scale.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Software that lets advertisers buy digital ad impressions programmatically across multiple ad exchanges in real-time.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Run programmatic display, video, CTV campaigns. Demandbase and 6sense have B2B DSP layers.</div>", "DMP": "<div class=\"tt-name\">DMP</div><div class=\"tt-cat\">Data Management Platform</div><div class=\"tt-row\">Cluster: <strong>Platform</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Coined ~2006–2008; popularised by platforms like BlueKai, Lotame for cookie-based audience management.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Collects, organises, and activates large volumes of audience data (mostly 3rd-party cookie-based) for ad targeting.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Largely superseded by CDPs in B2B; still used for 3rd-party audience segments in programmatic.</div>", "CDP": "<div class=\"tt-name\">CDP</div><div class=\"tt-cat\">Customer Data Platform</div><div class=\"tt-row\">Cluster: <strong>Platform</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Term coined by David Raab ~2013. Emerged to solve identity resolution across channels with 1st-party data.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Unified, persistent customer database built from 1st-party data across all touchpoints. Marketer-controlled, unlike a DMP.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Single source of truth for account/contact data; feeds personalisation, segmentation, activation.</div>", "MAP": "<div class=\"tt-name\">MAP</div><div class=\"tt-cat\">Marketing Automation Platform</div><div class=\"tt-row\">Cluster: <strong>Platform</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Eloqua (2000), Marketo (2006), Pardot (2007) defined the category.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Software automating marketing tasks: email sequences, lead scoring, nurture workflows.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Nurture leads through funnel; score MQLs; trigger sales alerts. Integrates with ABM platforms.</div>", "CRM": "<div class=\"tt-name\">CRM</div><div class=\"tt-cat\">Customer Relationship Management</div><div class=\"tt-row\">Cluster: <strong>Platform</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Tom Siebel popularised the category in the 1990s; Salesforce moved it to cloud in 1999.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">System of record for all customer and prospect interactions, pipeline, and deals.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">ABM platforms sync account signals back to CRM (Salesforce/HubSpot) to surface for AEs.</div>", "SSP": "<div class=\"tt-name\">SSP</div><div class=\"tt-cat\">Supply-Side Platform</div><div class=\"tt-row\">Cluster: <strong>Platform</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged ~2007 alongside DSPs; publishers needed the sell-side equivalent of RTB.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Software publishers use to sell ad inventory programmatically to DSPs via ad exchanges.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Not directly used by marketers, but understanding SSP helps explain how B2B display ads reach targets.</div>", "Programmatic Advertising": "<div class=\"tt-name\">Programmatic Advertising</div><div class=\"tt-cat\">Programmatic Advertising</div><div class=\"tt-row\">Cluster: <strong>Programmatic</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">RTB launched ~2009 (DoubleClick, AppNexus). 'Programmatic' became umbrella term ~2012.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Automated buying and selling of digital ad inventory using software and data, often in real-time.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Reach target accounts at scale across the web without manual insertion orders.</div>", "RTB": "<div class=\"tt-name\">RTB</div><div class=\"tt-cat\">Real-Time Bidding</div><div class=\"tt-row\">Cluster: <strong>Programmatic</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Launched ~2009; DoubleClick Ad Exchange was a pioneer. Enabled impression-level auctions.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Auction-based system where each ad impression is bought and sold in ~100ms via DSP/SSP.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">The underlying mechanism for most programmatic display advertising.</div>", "PMP": "<div class=\"tt-name\">PMP</div><div class=\"tt-cat\">Private Marketplace</div><div class=\"tt-row\">Cluster: <strong>Programmatic</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged ~2012 as premium publishers wanted to transact programmatically without open-auction risk.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Invite-only RTB auction between a publisher and select advertisers at negotiated floor prices.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Buy premium B2B publisher inventory (e.g. TechTarget) programmatically with better brand safety.</div>", "Programmatic Direct": "<div class=\"tt-name\">Programmatic Direct</div><div class=\"tt-cat\">Programmatic Direct / Guaranteed</div><div class=\"tt-row\">Cluster: <strong>Programmatic</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Formalised ~2013–2015 as IAB standardised Deal IDs.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Fixed-price, guaranteed programmatic deal between one buyer and one seller.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Reserve premium inventory at a set CPM; removes auction uncertainty.</div>", "MQL": "<div class=\"tt-name\">MQL</div><div class=\"tt-cat\">Marketing Qualified Lead</div><div class=\"tt-row\">Cluster: <strong>Metrics</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Popularised by Marketo and Eloqua ~2006–2010 to create a handoff point from marketing to sales.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">An individual lead that has reached a score threshold based on behaviour + fit, ready for sales review.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Traditional B2B handoff metric; increasingly replaced by MQA in ABM-mature orgs.</div>", "MQA": "<div class=\"tt-name\">MQA</div><div class=\"tt-cat\">Marketing Qualified Account</div><div class=\"tt-row\">Cluster: <strong>Metrics</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Coined by Engagio (Jon Miller) ~2016 as the account-centric replacement for MQL.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">An account (not individual) that shows sufficient engagement and fit to warrant sales attention.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">ABM KPI — replaces MQL; triggers coordinated sales outreach to the whole buying committee.</div>", "SQL": "<div class=\"tt-name\">SQL</div><div class=\"tt-cat\">Sales Qualified Lead</div><div class=\"tt-row\">Cluster: <strong>Metrics</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged alongside MQL in the 2000s MAP era as the sales-acceptance stage.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">A lead that sales has reviewed and accepted as worth pursuing (BANT or similar criteria met).</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Tracks marketing-to-sales handoff quality; measured as % of MQLs that become SQLs.</div>", "Engagement Score": "<div class=\"tt-name\">Engagement Score</div><div class=\"tt-cat\">Account Engagement Score</div><div class=\"tt-row\">Cluster: <strong>Metrics</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Popularised by Engagio (2015) as account-level aggregation of individual contact activity.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Aggregate of all interactions (website, email, ads, events) by contacts at an account, weighted by recency.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Surfaces accounts that are 'heating up' even before anyone fills a form.</div>", "Surge Score": "<div class=\"tt-name\">Surge Score</div><div class=\"tt-cat\">Intent Surge Score</div><div class=\"tt-row\">Cluster: <strong>Metrics</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Bombora coined 'Company Surge®' ~2015 to quantify spikes in topic consumption.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Score (e.g. 0–100) indicating how much an account's research into a topic has spiked vs. its baseline.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Threshold-based triggers: accounts above 60 surge on your topic get added to active sequences.</div>", "CPM": "<div class=\"tt-name\">CPM</div><div class=\"tt-cat\">Cost Per Mille (Thousand Impressions)</div><div class=\"tt-row\">Cluster: <strong>Metrics</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Print advertising term adopted by digital. 'Mille' = Latin for 1,000.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">The cost to serve 1,000 ad impressions.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">B2B programmatic CPMs are 10–20× higher than B2C due to narrow account targeting.</div>", "ICP": "<div class=\"tt-name\">ICP</div><div class=\"tt-cat\">Ideal Customer Profile</div><div class=\"tt-row\">Cluster: <strong>Targeting</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Popularised by Predictable Revenue (Aaron Ross, 2011) and ABM movement ~2014.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Description of the company type most likely to buy, get value, and expand. Defined by firmographic + technographic + behavioural attributes.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Filters TAM to a workable target account list (TAL); drives ABM programme scope.</div>", "TAM": "<div class=\"tt-name\">TAM</div><div class=\"tt-cat\">Total Addressable Market</div><div class=\"tt-row\">Cluster: <strong>Targeting</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Venture / business strategy term adopted into B2B GTM planning.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">The total revenue opportunity if you captured 100% of the market you serve.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Size the market; determine what % is ICP-fit; prioritise account segments.</div>", "TAL": "<div class=\"tt-name\">TAL</div><div class=\"tt-cat\">Target Account List</div><div class=\"tt-row\">Cluster: <strong>Targeting</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Formalised by early ABM vendors (Demandbase, Terminus) ~2015.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">The defined list of accounts that sales and marketing will focus on in a given period.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Every ABM campaign, ad buy, and sales sequence is scoped to the TAL.</div>", "Buying Committee": "<div class=\"tt-name\">Buying Committee</div><div class=\"tt-cat\">Buying Committee / Buying Group</div><div class=\"tt-row\">Cluster: <strong>Targeting</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">B2B concept formalised by Gartner research; ABM platforms adopted it ~2018.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">All the individuals at an account who influence or make a purchase decision (avg. 6–10 people in enterprise).</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Target ads and content at all committee members, not just the champion — addresses 'dark' stakeholders.</div>", "Dark Funnel": "<div class=\"tt-name\">Dark Funnel</div><div class=\"tt-cat\">The Dark Funnel</div><div class=\"tt-row\">Cluster: <strong>Targeting</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Coined by 6sense ~2019–2020 to describe buyer research that happens off your owned properties.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">The ~70% of the B2B buying journey that occurs before a prospect ever visits your site or fills a form.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Justifies 3rd-party intent + review-site signals; only platforms like 6sense/Bombora illuminate it.</div>", "Attribution": "<div class=\"tt-name\">Attribution</div><div class=\"tt-cat\">Marketing Attribution</div><div class=\"tt-row\">Cluster: <strong>Attribution</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Multi-touch attribution models emerged ~2010 as analytics matured beyond last-click.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Assigning credit to marketing touchpoints that contributed to a conversion or pipeline creation.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Understand which channels / programmes drive pipeline; defend budget; optimise spend.</div>", "First-Touch Attribution": "<div class=\"tt-name\">First-Touch Attribution</div><div class=\"tt-cat\">First-Touch Attribution</div><div class=\"tt-row\">Cluster: <strong>Attribution</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Earliest attribution model; trivial to implement in CRM.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">100% of credit goes to the first touchpoint that brought the account/lead in.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Simple; good for measuring channel-level top-of-funnel contribution.</div>", "Last-Touch Attribution": "<div class=\"tt-name\">Last-Touch Attribution</div><div class=\"tt-cat\">Last-Touch Attribution</div><div class=\"tt-row\">Cluster: <strong>Attribution</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Default in most CRM/MAP systems; reflects the conversion action, not the journey.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">100% of credit to the touchpoint immediately before conversion.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Simple but misleading for long B2B cycles; over-credits demo requests, under-credits awareness.</div>", "Multi-Touch Attribution": "<div class=\"tt-name\">Multi-Touch Attribution</div><div class=\"tt-cat\">Multi-Touch Attribution (MTA)</div><div class=\"tt-row\">Cluster: <strong>Attribution</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Emerged ~2010 with platforms like BrightFunnel (acquired by Terminus), Bizible (acquired by Marketo/Adobe).</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Distributes credit across all touchpoints in the customer journey using various weighting models.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">More accurate view of marketing's contribution; required for ABM pipeline reporting.</div>", "IP Deanonymisation": "<div class=\"tt-name\">IP Deanonymisation</div><div class=\"tt-cat\">IP-Based Account Deanonymisation</div><div class=\"tt-row\">Cluster: <strong>Identity</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Demandbase's founding technology (2006); maps IP addresses to company identities.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Resolving an anonymous website visitor's IP address to a known company name and firmographic record.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Identify which accounts are on your site even without a form fill; trigger sales alerts.</div>", "Identity Resolution": "<div class=\"tt-name\">Identity Resolution</div><div class=\"tt-cat\">Identity Resolution</div><div class=\"tt-row\">Cluster: <strong>Identity</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Adopted from AdTech (~2012) into B2B stack as cross-device tracking became critical.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Process of linking multiple identifiers (cookies, IPs, emails, device IDs) to a single person or account.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Stitch together the buying committee's activity across devices and channels into one account view.</div>", "Reverse IP Lookup": "<div class=\"tt-name\">Reverse IP Lookup</div><div class=\"tt-cat\">Reverse IP Lookup</div><div class=\"tt-row\">Cluster: <strong>Identity</strong></div><div class=\"tt-hr\"></div><div class=\"tt-h\">Origin</div><div class=\"tt-p\">Networking concept repurposed for B2B marketing ~2005.</div><div class=\"tt-h\">Meaning</div><div class=\"tt-p\">Translating an IP address to a hostname/company by querying DNS and commercial IP-to-company databases.</div><div class=\"tt-h\">Used for</div><div class=\"tt-p\">Foundation of visitor intelligence products; accuracy varies by VPN/remote-work adoption.</div>"};
+
+const nodeDS = new vis.DataSet(rawNodes);
+const edgeDS = new vis.DataSet(rawEdges);
+
+const network = new vis.Network(
+  document.getElementById("network"),
+  { nodes: nodeDS, edges: edgeDS },
+  {
+    physics: {
+      solver: "forceAtlas2Based",
+      forceAtlas2Based: {
+        gravitationalConstant: -65,
+        centralGravity: 0.004,
+        springLength: 210,
+        springConstant: 0.05,
+        damping: 0.5,
+      },
+      stabilization: { iterations: 220 },
+    },
+    interaction: {
+      hover: true,
+      tooltipDelay: 9999999,   // disable built-in tooltip
+      dragView: true,
+      zoomView: true,
+      navigationButtons: false,
+      keyboard: { enabled: true, bindToWindow: false },
+      multiselect: true,
+    },
+    nodes: { font: { size: 14 } },
+  }
+);
+
+// ── Custom tooltip ────────────────────────────────────────────────────────────
+
+const ttEl = document.getElementById("tooltip");
+let mouseX = 0, mouseY = 0;
+
+document.addEventListener("mousemove", e => { mouseX = e.clientX; mouseY = e.clientY; });
+
+network.on("hoverNode", ({ node }) => {
+  const html = tooltipData[node];
+  if (!html) return;
+  ttEl.innerHTML = html;
+  ttEl.style.display = "block";
+  requestAnimationFrame(() => {
+    positionTooltip();
+    ttEl.classList.add("visible");
+  });
+});
+
+network.on("blurNode", () => {
+  ttEl.classList.remove("visible");
+  setTimeout(() => { ttEl.style.display = "none"; }, 130);
+});
+
+function positionTooltip() {
+  const pad = 16, w = ttEl.offsetWidth, h = ttEl.offsetHeight;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let x = mouseX + pad, y = mouseY + pad;
+  if (x + w > vw - pad) x = mouseX - w - pad;
+  if (y + h > vh - pad) y = mouseY - h - pad;
+  ttEl.style.left = Math.max(pad, x) + "px";
+  ttEl.style.top  = Math.max(pad, y) + "px";
+}
+
+// ── Visibility / toggles ──────────────────────────────────────────────────────
+
+const hiddenEdgeGroups = new Set();
+
+function recomputeEdges() {
+  const hiddenNodeIds = new Set(
+    nodeDS.get({ filter: n => n.hidden }).map(n => n.id)
+  );
+  edgeDS.update(
+    edgeDS.get().map(e => ({
+      id:     e.id,
+      hidden: hiddenNodeIds.has(e.from) || hiddenNodeIds.has(e.to)
+              || hiddenEdgeGroups.has(e.edgeGroup),
+    }))
+  );
+}
+
+function toggleNodeGroup(el) {
+  const g = el.dataset.group, hide = !el.checked;
+  nodeDS.update(
+    nodeDS.get({ filter: n => n.group === g }).map(n => ({ id: n.id, hidden: hide }))
+  );
+  recomputeEdges();
+}
+
+function toggleEdgeGroup(el) {
+  const g = el.dataset.edge;
+  el.checked ? hiddenEdgeGroups.delete(g) : hiddenEdgeGroups.add(g);
+  recomputeEdges();
+}
+
+// ── Autocomplete helper ───────────────────────────────────────────────────────
+
+const allItems = rawNodes.map(n => ({ id: n.id, label: n.label, group: n.group }));
+
+function bindAC(inputEl, dropEl, onSelect) {
+  inputEl.addEventListener("input", () => {
+    const q = inputEl.value.trim().toLowerCase();
+    if (!q) { dropEl.style.display = "none"; return; }
+    const hits = allItems.filter(n => n.label.toLowerCase().includes(q)).slice(0, 9);
+    if (!hits.length) { dropEl.style.display = "none"; return; }
+    dropEl.innerHTML = hits.map(n =>
+      `<div class="ac-item" data-id="${n.id}">
+         ${n.label}<span class="ac-sub">${n.group}</span>
+       </div>`
+    ).join("");
+    dropEl.style.display = "block";
+    dropEl.querySelectorAll(".ac-item").forEach(el => {
+      el.addEventListener("click", () => {
+        onSelect(el.dataset.id);
+        inputEl.value = el.dataset.id;
+        dropEl.style.display = "none";
+      });
+    });
+  });
+  document.addEventListener("click", e => {
+    if (!dropEl.contains(e.target) && e.target !== inputEl)
+      dropEl.style.display = "none";
+  });
+}
+
+// ── Search ────────────────────────────────────────────────────────────────────
+
+const searchInp = document.getElementById("search-input");
+const searchDrop = document.getElementById("search-drop");
+const searchMsg  = document.getElementById("search-msg");
+
+bindAC(searchInp, searchDrop, id => jumpTo(id));
+searchInp.addEventListener("keydown", e => { if (e.key === "Enter") runSearch(); });
+
+function runSearch() {
+  const q = searchInp.value.trim().toLowerCase();
+  if (!q) return;
+  const match = allItems.find(n => n.label.toLowerCase() === q)
+             || allItems.find(n => n.label.toLowerCase().includes(q));
+  if (match) jumpTo(match.id);
+  else { searchMsg.textContent = "No matching node found."; searchMsg.className = "msg err"; }
+}
+
+function jumpTo(id) {
+  searchDrop.style.display = "none";
+  searchMsg.textContent = "";
+  searchInp.value = id;
+  const node = nodeDS.get(id);
+  if (node && node.hidden) {
+    searchMsg.textContent = "That node is currently hidden.";
+    searchMsg.className = "msg err";
+    return;
+  }
+  network.selectNodes([id]);
+  network.focus(id, { scale: 1.3, animation: { duration: 600, easingFunction: "easeInOutQuad" } });
+}
+
+// ── Path Finder ───────────────────────────────────────────────────────────────
+
+const fromInp   = document.getElementById("path-from");
+const toInp     = document.getElementById("path-to");
+const fromDrop  = document.getElementById("from-drop");
+const toDrop    = document.getElementById("to-drop");
+const pathMsg   = document.getElementById("path-msg");
+const pathResult= document.getElementById("path-result");
+const pathHops  = document.getElementById("path-hops");
+const pathTags  = document.getElementById("path-tags");
+
+let pathSnapshot = null;  // saved node/edge hidden states
+
+bindAC(fromInp, fromDrop, () => {});
+bindAC(toInp,   toDrop,   () => {});
+
+function buildAdj() {
+  const adj = {};
+  rawNodes.forEach(n => adj[n.id] = []);
+  rawEdges.forEach(e => {
+    (adj[e.from] = adj[e.from] || []).push({ neighbor: e.to,   edgeId: e.id });
+    (adj[e.to]   = adj[e.to]   || []).push({ neighbor: e.from, edgeId: e.id });
+  });
+  return adj;
+}
+
+function bfsPath(fromId, toId) {
+  if (fromId === toId) return { nodes: [fromId], edges: [] };
+  const adj     = buildAdj();
+  const visited = new Set([fromId]);
+  const queue   = [{ node: fromId, nodePath: [fromId], edgePath: [] }];
+  while (queue.length) {
+    const { node, nodePath, edgePath } = queue.shift();
+    for (const { neighbor, edgeId } of (adj[node] || [])) {
+      if (!visited.has(neighbor)) {
+        visited.add(neighbor);
+        const np = [...nodePath, neighbor];
+        const ep = [...edgePath, edgeId];
+        if (neighbor === toId) return { nodes: np, edges: ep };
+        queue.push({ node: neighbor, nodePath: np, edgePath: ep });
+      }
+    }
+  }
+  return null;
+}
+
+function resolveNodeId(inputEl) {
+  const val = inputEl.value.trim();
+  if (!val) return null;
+  // exact match first, then prefix, then substring
+  return (rawNodes.find(n => n.id === val)
+       || rawNodes.find(n => n.label.toLowerCase() === val.toLowerCase())
+       || rawNodes.find(n => n.label.toLowerCase().includes(val.toLowerCase())))?.id ?? null;
+}
+
+function filterToPath() {
+  setPathMsg("", "");
+  pathResult.style.display = "none";
+
+  const fromId = resolveNodeId(fromInp);
+  const toId   = resolveNodeId(toInp);
+
+  if (!fromId || !toId) {
+    setPathMsg("Select both nodes first.", "err"); return;
+  }
+  if (fromId === toId) {
+    setPathMsg("From and To are the same node.", "err"); return;
+  }
+
+  const result = bfsPath(fromId, toId);
+  if (!result) {
+    setPathMsg("No path found between these nodes.", "err"); return;
+  }
+
+  // snapshot current visibility
+  pathSnapshot = {
+    nodes: nodeDS.get().map(n => ({ id: n.id, hidden: !!n.hidden })),
+    edges: edgeDS.get().map(e => ({ id: e.id, hidden: !!e.hidden })),
+  };
+
+  const pathNodeSet = new Set(result.nodes);
+  const pathEdgeSet = new Set(result.edges);
+
+  nodeDS.update(rawNodes.map(n => ({ id: n.id, hidden: !pathNodeSet.has(n.id) })));
+  edgeDS.update(rawEdges.map(e => ({ id: e.id, hidden: !pathEdgeSet.has(e.id) })));
+
+  // fit view to path nodes
+  network.fit({ nodes: result.nodes, animation: { duration: 600, easingFunction: "easeInOutQuad" } });
+
+  // show path
+  const hops = result.nodes.length - 1;
+  pathHops.textContent = `${hops} hop${hops !== 1 ? "s" : ""}  ·  ${result.nodes.length} nodes`;
+  pathTags.innerHTML = result.nodes.map(id =>
+    `<span class="path-tag" onclick="jumpTo(${JSON.stringify(id)})">${id}</span>`
+  ).join(" → ");
+  pathResult.style.display = "block";
+  setPathMsg("Path found.", "ok");
+}
+
+function clearPath() {
+  if (pathSnapshot) {
+    nodeDS.update(pathSnapshot.nodes);
+    edgeDS.update(pathSnapshot.edges);
+    pathSnapshot = null;
+  }
+  setPathMsg("", "");
+  pathResult.style.display = "none";
+}
+
+function setPathMsg(text, cls) {
+  pathMsg.textContent = text;
+  pathMsg.className = "msg" + (cls ? " " + cls : "");
+}
+</script>
+</body>
+</html>

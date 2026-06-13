@@ -25,3 +25,22 @@ body {
 .resume-nav a:hover {
     color: #0056b3;
 }
+
+.nav-divider {
+    flex: 1;
+}
+
+.nav-kg {
+    margin-left: auto;
+    background: #1e293b;
+    color: #fff !important;
+    padding: 0.3rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: background 0.15s;
+}
+
+.nav-kg:hover {
+    background: #334155;
+    color: #fff !important;
+}
