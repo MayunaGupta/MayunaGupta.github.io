@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design + ML Cheat Sheet — Mayuna Gupta</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f8f9fb;
+  color: #1a1a2e;
+  min-height: 100vh;
+}
+
+/* ── Nav ── */
+nav.resume-nav {
+  position: sticky; top: 0;
+  background: #ffffff;
+  border-bottom: 1px solid #eaeaea;
+  padding: 0.75rem 1.5rem;
+  display: flex; gap: 1rem; align-items: center;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+nav.resume-nav a {
+  text-decoration: none; font-weight: 500; color: #333; font-size: 0.9rem;
+}
+nav.resume-nav a:hover { color: #0056b3; }
+.nav-divider { flex: 1; }
+.nav-badge {
+  background: #1e293b; color: #fff;
+  padding: 0.3rem 0.85rem; border-radius: 6px;
+  font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+}
+.nav-badge.active { background: #0f766e; }
+
+/* ── Layout ── */
+.page-wrap {
+  display: flex; min-height: calc(100vh - 50px);
+}
+
+/* ── Sidebar ── */
+#sidebar {
+  width: 240px; min-width: 240px;
+  background: #fff;
+  border-right: 1px solid #e2e8f0;
+  padding: 1.25rem 0.75rem;
+  position: sticky; top: 50px;
+  height: calc(100vh - 50px);
+  overflow-y: auto;
+}
+#sidebar h3 {
+  font-size: 0.7rem; font-weight: 700; color: #64748b;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 0.75rem; padding-left: 0.5rem;
+}
+#sidebar a {
+  display: block; text-decoration: none; color: #475569;
+  font-size: 0.82rem; padding: 0.35rem 0.5rem; border-radius: 5px;
+  line-height: 1.3; transition: background 0.12s, color 0.12s;
+}
+#sidebar a:hover { background: #f1f5f9; color: #0f172a; }
+#sidebar a.active { background: #e0f2fe; color: #0369a1; font-weight: 600; }
+.sidebar-section { margin-bottom: 1rem; }
+
+/* ── Main content ── */
+#content {
+  flex: 1; padding: 2rem 2.5rem;
+  max-width: 1100px;
+}
+
+/* ── Page header ── */
+.page-header {
+  margin-bottom: 2rem;
+}
+.page-header h1 {
+  font-size: 1.8rem; font-weight: 700; color: #0f172a;
+  margin-bottom: 0.4rem;
+}
+.page-header p {
+  color: #64748b; font-size: 0.93rem;
+}
+
+/* ── Section ── */
+.section { margin-bottom: 3rem; scroll-margin-top: 70px; }
+.section-title {
+  font-size: 1.15rem; font-weight: 700; color: #0f172a;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 1.25rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.section-title .badge {
+  font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.55rem;
+  border-radius: 99px; background: #dbeafe; color: #1e40af;
+}
+
+/* ── Tables ── */
+.table-wrap { overflow-x: auto; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: 0.87rem; background: #fff;
+}
+thead tr { background: #f1f5f9; }
+th {
+  padding: 0.65rem 0.9rem; text-align: left;
+  font-size: 0.75rem; font-weight: 700; color: #475569;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  border-bottom: 1px solid #e2e8f0;
+}
+td {
+  padding: 0.6rem 0.9rem; border-bottom: 1px solid #f1f5f9;
+  vertical-align: top; line-height: 1.55;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8fafc; }
+td strong { color: #0f172a; }
+td code {
+  background: #f1f5f9; padding: 0.1rem 0.35rem;
+  border-radius: 4px; font-size: 0.8rem; color: #be185d;
+}
+
+/* ── Tag pills ── */
+.tag {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 600;
+  padding: 0.1rem 0.45rem; border-radius: 99px;
+  margin: 0 2px 2px 0;
+}
+.tag-blue   { background:#dbeafe; color:#1e40af; }
+.tag-green  { background:#dcfce7; color:#15803d; }
+.tag-orange { background:#ffedd5; color:#9a3412; }
+.tag-purple { background:#ede9fe; color:#6d28d9; }
+.tag-red    { background:#fee2e2; color:#b91c1c; }
+.tag-teal   { background:#ccfbf1; color:#0f766e; }
+.tag-gray   { background:#f1f5f9; color:#475569; }
+
+/* ── Two-column grid (for comparison sections) ── */
+.compare-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+}
+.compare-card {
+  background: #fff; border-radius: 8px; padding: 1rem 1.25rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07); border-top: 3px solid;
+}
+.compare-card h4 { font-size: 0.9rem; margin-bottom: 0.6rem; }
+.compare-card ul { padding-left: 1.1rem; font-size: 0.85rem; color: #475569; }
+.compare-card li { margin-bottom: 0.3rem; }
+.card-blue  { border-top-color: #3b82f6; }
+.card-green { border-top-color: #22c55e; }
+.card-purple{ border-top-color: #a855f7; }
+.card-orange{ border-top-color: #f97316; }
+.card-teal  { border-top-color: #14b8a6; }
+.card-red   { border-top-color: #ef4444; }
+
+@media (max-width: 700px) {
+  .compare-grid { grid-template-columns: 1fr; }
+  #sidebar { display: none; }
+  #content { padding: 1.25rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<nav class="resume-nav">
+  <a href="/">Mayuna Gupta</a>
+  <span class="nav-divider"></span>
+  <a href="/#education">Education</a>
+  <a href="/#experience">Experience</a>
+  <a href="/#academic-projects">Projects</a>
+  <a href="/#publications">Publications</a>
+  <a href="/demandbase-kg.html" class="nav-badge">Knowledge Graph</a>
+  <a href="/system-design-cheatsheet.html" class="nav-badge active">System Design</a>
+</nav>
+
+<div class="page-wrap">
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div class="sidebar-section">
+    <h3>System Design</h3>
+    <a href="#core-concepts">Core Concepts</a>
+    <a href="#caching">Caching</a>
+    <a href="#databases">Databases</a>
+    <a href="#messaging">Messaging & Queues</a>
+    <a href="#rate-limiting">Rate Limiting</a>
+    <a href="#consistency">Consistency Models</a>
+    <a href="#storage">Storage Systems</a>
+    <a href="#networking">Networking & CDN</a>
+    <a href="#api">API Design</a>
+    <a href="#observability">Observability</a>
+    <a href="#resilience">Resilience Patterns</a>
+    <a href="#async">Async & Job Patterns</a>
+    <a href="#crawling">Crawling / Pipelines</a>
+    <a href="#search">Search Systems</a>
+    <a href="#security">Security</a>
+  </div>
+  <div class="sidebar-section">
+    <h3>ML System Design</h3>
+    <a href="#ml-fundamentals">ML Fundamentals</a>
+    <a href="#feature-engineering">Feature Engineering</a>
+    <a href="#model-serving">Model Serving</a>
+    <a href="#ml-infra">ML Infrastructure</a>
+    <a href="#recsys">Recommendation Systems</a>
+    <a href="#nlp">NLP & LLMs</a>
+    <a href="#mlops">MLOps</a>
+    <a href="#ml-eval">Evaluation</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main id="content">
+
+<div class="page-header">
+  <h1>System Design + ML System Design</h1>
+  <p>A living cheat sheet — concepts, tradeoffs, and when to reach for each technology.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Core Concepts -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="core-concepts">
+  <div class="section-title">1. Core System Design Concepts <span class="badge">Foundations</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>What it means</th><th>When to use it</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Horizontal scaling</strong></td><td>Add more machines (scale out)</td><td>Default for stateless services at scale</td></tr>
+      <tr><td><strong>Vertical scaling</strong></td><td>Bigger machine (scale up)</td><td>Quick fix; limited ceiling; single-point-of-failure risk</td></tr>
+      <tr><td><strong>Load balancer</strong></td><td>Distributes requests across servers — Round Robin, Least Connections, IP Hash, Consistent Hashing</td><td>Any multi-instance service; Layer 4 (TCP) vs Layer 7 (HTTP-aware)</td></tr>
+      <tr><td><strong>Consistent hashing</strong></td><td>Maps keys to nodes so minimal redistribution when nodes join/leave</td><td>Sharding, routing same-domain/client to the same worker, cache clusters</td></tr>
+      <tr><td><strong>CAP theorem</strong></td><td>Can't have Consistency + Availability during a network Partition</td><td>Frame any distributed-storage tradeoff (CP: HBase, Zookeeper; AP: Cassandra, DynamoDB)</td></tr>
+      <tr><td><strong>PACELC</strong></td><td>Extension of CAP: even without partition, tradeoff between latency and consistency exists</td><td>Deeper distributed system design — models steady-state latency/consistency tradeoff</td></tr>
+      <tr><td><strong>Sharding / Partitioning</strong></td><td>Split data across nodes by a key (client_id, hash(domain), date range)</td><td>Scale writes/reads horizontally; avoid hot spots with good shard key choice</td></tr>
+      <tr><td><strong>Replication</strong></td><td>Copies of data on multiple nodes (leader-follower or multi-leader)</td><td>Fault tolerance, read scaling; beware replication lag in async setups</td></tr>
+      <tr><td><strong>Strong consistency</strong></td><td>Every read sees the latest write</td><td>Financial transactions, account balances, inventory counts</td></tr>
+      <tr><td><strong>Eventual consistency</strong></td><td>Replicas converge over time, short-lived stale reads possible</td><td>High-read systems tolerant of slight staleness — caches, DNS, social feeds</td></tr>
+      <tr><td><strong>Two-phase commit (2PC)</strong></td><td>Coordinator asks all nodes to prepare, then commits only if all agree</td><td>Distributed transactions needing atomicity; slow and blocking</td></tr>
+      <tr><td><strong>Saga pattern</strong></td><td>Sequence of local transactions with compensating rollbacks on failure</td><td>Microservices needing distributed transactions without 2PC locking</td></tr>
+      <tr><td><strong>Quorum reads/writes</strong></td><td>Majority of replicas must agree (R + W &gt; N)</td><td>Tunable consistency in Cassandra, DynamoDB; balance latency vs. durability</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Caching -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="caching">
+  <div class="section-title">2. Caching <span class="badge">Performance</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Cache-aside (Lazy loading)</strong></td><td>App checks cache first; on miss reads DB and populates cache</td><td>Cache only what's needed; risk of cold start and thundering herd</td></tr>
+      <tr><td><strong>Write-through</strong></td><td>Write goes to cache and DB simultaneously</td><td>Cache always fresh; doubles write latency</td></tr>
+      <tr><td><strong>Write-back (Write-behind)</strong></td><td>Write goes to cache first, flushed to DB asynchronously</td><td>Fast writes; risk of data loss on cache crash</td></tr>
+      <tr><td><strong>Read-through</strong></td><td>Cache sits in front of DB; cache fetches from DB on miss transparently</td><td>Simpler app code; cache layer owns hydration</td></tr>
+      <tr><td><strong>TTL (Time-to-live)</strong></td><td>Auto-expire stale cache entries after fixed duration</td><td>Keep short for frequently changing data; longer for rarely-changing reference data</td></tr>
+      <tr><td><strong>LRU eviction</strong></td><td>Evict Least Recently Used when cache is full</td><td>Good for temporal locality; default in Redis</td></tr>
+      <tr><td><strong>LFU eviction</strong></td><td>Evict Least Frequently Used</td><td>Better for skewed access patterns; more overhead</td></tr>
+      <tr><td><strong>Cache stampede / Thundering herd</strong></td><td>Many requests miss simultaneously and hammer DB</td><td>Fix: probabilistic early expiry, mutex-on-miss, or request coalescing</td></tr>
+      <tr><td><strong>Redis</strong></td><td>In-memory KV store with persistence, pub/sub, Lua scripting, sorted sets</td><td>Caching, rate limiting, leaderboards, session store, pub/sub</td></tr>
+      <tr><td><strong>Memcached</strong></td><td>Simpler in-memory KV cache, multi-threaded</td><td>Pure caching at very high throughput; no persistence or data structures</td></tr>
+      <tr><td><strong>CDN edge cache</strong></td><td>Cache static/dynamic content at edge PoPs globally</td><td>Static assets, API responses, HTML; reduces origin load and latency</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Databases -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="databases">
+  <div class="section-title">3. Database Types — Quick Picker <span class="badge">Storage</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Type</th><th>Examples</th><th>Best for</th><th>Avoid when</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Relational (SQL)</strong> <span class="tag tag-blue">ACID</span></td>
+        <td>PostgreSQL, MySQL, Aurora</td>
+        <td>Complex joins, strict schema, transactions (billing, orders)</td>
+        <td>Massive unstructured data, write-heavy at extreme scale</td>
+      </tr>
+      <tr>
+        <td><strong>Key-Value</strong> <span class="tag tag-green">O(1)</span></td>
+        <td>Redis, DynamoDB, Memcached</td>
+        <td>Fast single-key lookups, caching, rate-limit counters, sessions</td>
+        <td>Range queries, complex filters, joins</td>
+      </tr>
+      <tr>
+        <td><strong>Wide-column</strong> <span class="tag tag-orange">Write-heavy</span></td>
+        <td>Cassandra, HBase, Bigtable</td>
+        <td>Massive write throughput, time-series, sensor data, audit logs</td>
+        <td>Ad-hoc queries, joins, transactions</td>
+      </tr>
+      <tr>
+        <td><strong>Document</strong> <span class="tag tag-purple">Flexible</span></td>
+        <td>MongoDB, Firestore, CouchDB</td>
+        <td>Semi-structured JSON data, catalogs, user profiles</td>
+        <td>Cross-document joins, strict relational integrity</td>
+      </tr>
+      <tr>
+        <td><strong>Search / Inverted Index</strong> <span class="tag tag-teal">Full-text</span></td>
+        <td>Elasticsearch, OpenSearch, Solr</td>
+        <td>Full-text search, fuzzy/relevance ranking, log analytics</td>
+        <td>Primary transactional store (eventual consistency, no ACID)</td>
+      </tr>
+      <tr>
+        <td><strong>Object storage</strong> <span class="tag tag-gray">Blob</span></td>
+        <td>S3, GCS, Azure Blob</td>
+        <td>Large unstructured blobs — raw HTML, images, model checkpoints</td>
+        <td>Low-latency random reads, mutable byte ranges</td>
+      </tr>
+      <tr>
+        <td><strong>Graph</strong> <span class="tag tag-red">Traversal</span></td>
+        <td>Neo4j, Neptune, TigerGraph</td>
+        <td>Relationship traversal — social graphs, fraud rings, knowledge graphs</td>
+        <td>Simple tabular data without deep relationship queries</td>
+      </tr>
+      <tr>
+        <td><strong>Time-series</strong> <span class="tag tag-blue">Metrics</span></td>
+        <td>InfluxDB, TimescaleDB, Prometheus</td>
+        <td>Timestamped metrics, IoT, monitoring; range aggregations</td>
+        <td>Complex joins, arbitrary query patterns</td>
+      </tr>
+      <tr>
+        <td><strong>Columnar (OLAP)</strong> <span class="tag tag-teal">Analytics</span></td>
+        <td>BigQuery, Snowflake, Redshift, ClickHouse, DuckDB</td>
+        <td>Analytical aggregations over large datasets (GROUP BY, window functions)</td>
+        <td>Transactional workloads, frequent point updates</td>
+      </tr>
+      <tr>
+        <td><strong>NewSQL</strong> <span class="tag tag-green">Distributed SQL</span></td>
+        <td>CockroachDB, Spanner, YugabyteDB, TiDB</td>
+        <td>ACID transactions + horizontal scale; globally distributed</td>
+        <td>When strong consistency latency is unacceptable</td>
+      </tr>
+      <tr>
+        <td><strong>Vector</strong> <span class="tag tag-purple">Embeddings</span></td>
+        <td>Pinecone, Weaviate, Qdrant, pgvector, Milvus</td>
+        <td>ANN (approximate nearest neighbor) search over dense embeddings</td>
+        <td>Exact keyword search, transactional use cases</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <br>
+  <div class="compare-grid">
+    <div class="compare-card card-blue">
+      <h4>ACID (SQL / NewSQL)</h4>
+      <ul>
+        <li>Atomicity — all-or-nothing</li>
+        <li>Consistency — valid state after each tx</li>
+        <li>Isolation — concurrent txs don't interfere</li>
+        <li>Durability — committed data survives crash</li>
+        <li><em>Use for: financial txs, inventory, billing</em></li>
+      </ul>
+    </div>
+    <div class="compare-card card-orange">
+      <h4>BASE (NoSQL / Distributed)</h4>
+      <ul>
+        <li>Basically Available</li>
+        <li>Soft state — may change over time</li>
+        <li>Eventually consistent</li>
+        <li>Scales horizontally with weaker guarantees</li>
+        <li><em>Use for: social feeds, counters, caches</em></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Messaging & Queues -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="messaging">
+  <div class="section-title">4. Messaging &amp; Queues <span class="badge">Async</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Technology</th><th>Model</th><th>Best for</th><th>Key traits</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Apache Kafka</strong></td>
+        <td>Log-based pub/sub with consumer groups</td>
+        <td>High-throughput event streaming, CDC, audit logs, ML pipelines</td>
+        <td>Durable, replayable, ordered per partition; retention configurable</td>
+      </tr>
+      <tr>
+        <td><strong>Amazon SQS</strong></td>
+        <td>Managed point-to-point queue (standard + FIFO)</td>
+        <td>Decoupling microservices, job queues, batch processing</td>
+        <td>Standard = at-least-once; FIFO = exactly-once, ordered</td>
+      </tr>
+      <tr>
+        <td><strong>Amazon SNS</strong></td>
+        <td>Fan-out pub/sub (push to multiple SQS / HTTP / Lambda)</td>
+        <td>Broadcast notifications, multi-subscriber event dispatch</td>
+        <td>No replay; combine with SQS for durable fan-out</td>
+      </tr>
+      <tr>
+        <td><strong>RabbitMQ</strong></td>
+        <td>AMQP broker with routing (exchanges, bindings)</td>
+        <td>Complex routing logic, RPC-style patterns, task queues</td>
+        <td>Flexible routing; messages deleted after ack (not log-based)</td>
+      </tr>
+      <tr>
+        <td><strong>Apache Pulsar</strong></td>
+        <td>Multi-layer pub/sub separating compute (broker) and storage (BookKeeper)</td>
+        <td>Geo-replication, multi-tenancy, long retention</td>
+        <td>Segment-based storage; better multi-region than Kafka</td>
+      </tr>
+      <tr>
+        <td><strong>Redis Streams</strong></td>
+        <td>Append-only log with consumer groups</td>
+        <td>Lightweight Kafka alternative, real-time event processing</td>
+        <td>In-memory (optional persistence); simpler ops than Kafka</td>
+      </tr>
+      <tr>
+        <td><strong>Google Pub/Sub</strong></td>
+        <td>Managed serverless pub/sub</td>
+        <td>GCP-native event ingestion, IoT, analytics pipelines</td>
+        <td>At-least-once delivery; 7-day message retention</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <br>
+  <div class="compare-grid">
+    <div class="compare-card card-blue">
+      <h4>Queue (Point-to-Point)</h4>
+      <ul>
+        <li>One producer → one consumer per message</li>
+        <li>Message deleted after processing</li>
+        <li>Good for task distribution, load leveling</li>
+        <li><em>Examples: SQS, RabbitMQ queues</em></li>
+      </ul>
+    </div>
+    <div class="compare-card card-teal">
+      <h4>Pub/Sub (Fan-Out)</h4>
+      <ul>
+        <li>One event → many independent consumers</li>
+        <li>Consumers maintain their own offset/position</li>
+        <li>Good for notifications, audit, analytics fan-out</li>
+        <li><em>Examples: Kafka, SNS, Pub/Sub</em></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Rate Limiting -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="rate-limiting">
+  <div class="section-title">5. Rate Limiting &amp; Pagination <span class="badge">Control</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Use case</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Token bucket</strong></td><td>Bucket refills at fixed rate; allows bursts up to bucket size</td><td>Per-domain or per-client API limits — most common</td></tr>
+      <tr><td><strong>Leaky bucket</strong></td><td>Fixed drain rate regardless of burst; smooths output</td><td>Enforcing strict output rate (network traffic shaping)</td></tr>
+      <tr><td><strong>Fixed window counter</strong></td><td>Count resets every fixed time block</td><td>Simple; bursty at window edges (2× allowed in 2× window crossing)</td></tr>
+      <tr><td><strong>Sliding window log</strong></td><td>Track timestamps of each request; count in rolling window</td><td>Accurate; high memory per client</td></tr>
+      <tr><td><strong>Sliding window counter</strong></td><td>Hybrid: interpolate previous window into current</td><td>Accurate and memory-efficient — best of both</td></tr>
+      <tr><td><strong>Offset / LIMIT pagination</strong></td><td><code>LIMIT x OFFSET y</code> SQL pattern</td><td>Simple; breaks on live data; O(offset) DB scan</td></tr>
+      <tr><td><strong>Cursor / Keyset pagination</strong></td><td>Opaque token marking last-seen item (e.g., <code>WHERE id &gt; last_id</code>)</td><td>Live/changing datasets; stable, indexed, fast — always prefer this</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Consistency -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="consistency">
+  <div class="section-title">6. Consistency &amp; Concurrency Models <span class="badge">Correctness</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Linearizability</strong></td><td>Strongest: operations appear instantaneous; total order consistent with real time</td><td>Zookeeper, etcd, Spanner</td></tr>
+      <tr><td><strong>Sequential consistency</strong></td><td>All nodes see operations in the same order, but not necessarily real-time</td><td>Theoretical model; approximated by leader replication</td></tr>
+      <tr><td><strong>Causal consistency</strong></td><td>Operations that are causally related appear in order; concurrent ops may differ</td><td>MongoDB causal sessions, some CRDT systems</td></tr>
+      <tr><td><strong>Eventual consistency</strong></td><td>Replicas converge given no new writes</td><td>DynamoDB, Cassandra default, S3 (now strong)</td></tr>
+      <tr><td><strong>Read-your-writes</strong></td><td>Client always reads its own writes, even across replicas</td><td>Session-level guarantee; route user to same replica or use sync read</td></tr>
+      <tr><td><strong>Monotonic reads</strong></td><td>Once client reads a value, future reads won't go back in time</td><td>Important for UI consistency (e.g., showing older data after refresh)</td></tr>
+      <tr><td><strong>Optimistic concurrency (OCC)</strong></td><td>Read without lock, write with version check; retry on conflict</td><td>DynamoDB conditional writes, Postgres MVCC, ETags</td></tr>
+      <tr><td><strong>Pessimistic locking</strong></td><td>Lock resource before reading; release after write</td><td>SQL <code>SELECT FOR UPDATE</code>; high contention = deadlock risk</td></tr>
+      <tr><td><strong>MVCC</strong></td><td>Readers see consistent snapshot; writers don't block readers</td><td>PostgreSQL, MySQL InnoDB, Oracle</td></tr>
+      <tr><td><strong>CRDT</strong></td><td>Data structures that merge conflicting updates automatically (e.g., counters, sets)</td><td>Collaborative editors (Figma), distributed counters, shopping carts</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Storage -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="storage">
+  <div class="section-title">7. Storage Systems <span class="badge">Data</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Pattern / Tech</th><th>Meaning</th><th>Use case</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Data Lake</strong></td><td>Raw data in object storage (S3/GCS) in native format; schema-on-read</td><td>Long-term raw storage, ML training data, audit history</td></tr>
+      <tr><td><strong>Data Warehouse</strong></td><td>Structured, transformed, schema-on-write; optimized for OLAP</td><td>Business intelligence, reporting — Snowflake, BigQuery, Redshift</td></tr>
+      <tr><td><strong>Data Lakehouse</strong></td><td>Lake storage + warehouse-style metadata and ACID (Delta Lake, Iceberg, Hudi)</td><td>Unified analytics + ML; avoids data duplication</td></tr>
+      <tr><td><strong>Apache Iceberg</strong></td><td>Open table format with ACID, schema evolution, time-travel on object storage</td><td>Large-scale analytics on S3/GCS with snapshot isolation</td></tr>
+      <tr><td><strong>Delta Lake</strong></td><td>Databricks' ACID table format on object storage</td><td>Streaming + batch unified; reliable ML feature stores</td></tr>
+      <tr><td><strong>Apache Parquet</strong></td><td>Columnar file format with compression and predicate pushdown</td><td>Analytics workloads; interoperable across Spark, Presto, BigQuery</td></tr>
+      <tr><td><strong>Apache Avro</strong></td><td>Row-based binary format with schema embedded in file; good for Kafka</td><td>Event streaming, schema evolution with Schema Registry</td></tr>
+      <tr><td><strong>WAL (Write-Ahead Log)</strong></td><td>Changes logged before applied to main storage; basis of crash recovery and CDC</td><td>All SQL DBs internally; Postgres WAL used for replication and Debezium CDC</td></tr>
+      <tr><td><strong>LSM tree</strong></td><td>Writes go to memory (memtable), flushed to sorted SSTable files; background compaction</td><td>Write-heavy workloads: Cassandra, RocksDB, LevelDB, HBase</td></tr>
+      <tr><td><strong>B-tree</strong></td><td>Balanced tree for in-place updates; good read performance</td><td>SQL databases (PostgreSQL, MySQL) — balanced read/write</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Networking & CDN -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="networking">
+  <div class="section-title">8. Networking &amp; CDN <span class="badge">Infrastructure</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CDN (Content Delivery Network)</strong></td><td>Geographically distributed PoPs that cache content close to users</td><td>Cloudflare, Fastly, Akamai, CloudFront — reduces latency and origin load</td></tr>
+      <tr><td><strong>DNS load balancing</strong></td><td>Return multiple A records or use weighted routing at DNS level</td><td>Route53, Cloudflare — coarse-grained, TTL-limited failover</td></tr>
+      <tr><td><strong>Anycast</strong></td><td>Same IP announced from multiple PoPs; BGP routes to nearest</td><td>DDoS mitigation, DNS (1.1.1.1), CDN edge routing</td></tr>
+      <tr><td><strong>TCP vs UDP</strong></td><td>TCP: reliable, ordered, connection-oriented. UDP: fast, no guarantee</td><td>Use UDP for video streaming, gaming, DNS; TCP for everything needing reliability</td></tr>
+      <tr><td><strong>HTTP/2</strong></td><td>Multiplexed streams over single connection, header compression, server push</td><td>Reduces head-of-line blocking vs HTTP/1.1; standard for APIs</td></tr>
+      <tr><td><strong>HTTP/3 + QUIC</strong></td><td>UDP-based; built-in encryption, 0-RTT reconnect, stream-level loss recovery</td><td>Mobile clients with high packet loss; video streaming</td></tr>
+      <tr><td><strong>WebSockets</strong></td><td>Full-duplex persistent connection over HTTP upgrade</td><td>Real-time: chat, live feeds, collaborative editing, multiplayer games</td></tr>
+      <tr><td><strong>SSE (Server-Sent Events)</strong></td><td>Server pushes events to client over HTTP; unidirectional</td><td>Simpler than WebSockets for one-way push (notifications, live dashboards)</td></tr>
+      <tr><td><strong>gRPC</strong></td><td>HTTP/2 + Protobuf; strongly typed, bidirectional streaming, code-gen stubs</td><td>Internal microservice communication; lower overhead than REST+JSON</td></tr>
+      <tr><td><strong>Service mesh (Istio/Envoy)</strong></td><td>Sidecar proxies handling mTLS, retries, circuit breaking, observability</td><td>Kubernetes microservices; offloads cross-cutting concerns from app code</td></tr>
+      <tr><td><strong>VPC / Private networking</strong></td><td>Isolated virtual network; control ingress/egress with security groups and NACLs</td><td>Isolate backend services from public internet; peering for cross-VPC comms</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: API Design -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="api">
+  <div class="section-title">9. API Design <span class="badge">Interface</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Trade-offs</th></tr></thead>
+    <tbody>
+      <tr><td><strong>REST</strong></td><td>Stateless HTTP, resource-oriented URLs, standard verbs (GET/POST/PUT/DELETE/PATCH)</td><td>Simple, cacheable, universal; no strict contract enforcement</td></tr>
+      <tr><td><strong>GraphQL</strong></td><td>Client specifies exact fields needed; single /graphql endpoint</td><td>Eliminates over/under-fetching; complex caching, N+1 query risk</td></tr>
+      <tr><td><strong>gRPC</strong></td><td>Strongly typed with Protobuf; bidirectional streaming; HTTP/2</td><td>Efficient for internal services; poor browser support without grpc-web</td></tr>
+      <tr><td><strong>Idempotency</strong></td><td>Same request applied multiple times = same result (GET, PUT, DELETE are idempotent; POST is not)</td><td>Add idempotency keys to POST endpoints to support safe retries</td></tr>
+      <tr><td><strong>Versioning</strong></td><td>URL versioning (<code>/v1/</code>), header versioning, or content negotiation</td><td>URL versioning is most explicit and cacheable</td></tr>
+      <tr><td><strong>API Gateway</strong></td><td>Single entry point: auth, rate limiting, routing, SSL termination, logging</td><td>AWS API Gateway, Kong, Nginx, Envoy — prevents coupling clients to services</td></tr>
+      <tr><td><strong>BFF (Backend for Frontend)</strong></td><td>Dedicated API layer per client type (mobile vs web) aggregating microservice calls</td><td>Reduces round trips for specific client; more services to maintain</td></tr>
+      <tr><td><strong>OpenAPI / Swagger</strong></td><td>Machine-readable REST API spec enabling code-gen, validation, documentation</td><td>Standard for REST; enables SDK generation and contract testing</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Observability -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="observability">
+  <div class="section-title">10. Observability <span class="badge">Operations</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Pillar</th><th>Technologies</th><th>What to capture</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Metrics</strong></td>
+        <td>Prometheus, Grafana, Datadog, CloudWatch, StatsD</td>
+        <td>Latency (p50/p95/p99), throughput (RPS), error rate, saturation (CPU/memory/queue depth) — the <strong>RED</strong> method and <strong>USE</strong> method</td>
+      </tr>
+      <tr>
+        <td><strong>Logs</strong></td>
+        <td>ELK Stack (Elasticsearch + Logstash + Kibana), Loki + Grafana, Splunk, CloudWatch Logs</td>
+        <td>Structured JSON logs with trace_id, user_id, service name; avoid logging secrets</td>
+      </tr>
+      <tr>
+        <td><strong>Distributed Tracing</strong></td>
+        <td>Jaeger, Zipkin, AWS X-Ray, Datadog APM, OpenTelemetry</td>
+        <td>End-to-end request flow across services; identify slow spans, cascade failures</td>
+      </tr>
+      <tr>
+        <td><strong>Alerting</strong></td>
+        <td>PagerDuty, OpsGenie, Alertmanager</td>
+        <td>Alert on symptoms (user-facing errors) not causes; avoid alert fatigue</td>
+      </tr>
+      <tr>
+        <td><strong>SLO / SLA / SLI</strong></td>
+        <td>—</td>
+        <td>SLI = actual metric; SLO = target (e.g., 99.9% uptime); SLA = contractual commitment with penalty</td>
+      </tr>
+      <tr>
+        <td><strong>Error budget</strong></td>
+        <td>—</td>
+        <td>Allowable downtime before SLO breach; freeze releases when budget is exhausted</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Resilience -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="resilience">
+  <div class="section-title">11. Resilience Patterns <span class="badge">Reliability</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Implementation</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Circuit breaker</strong></td><td>Stop sending to a failing dependency for a cooldown; fail fast</td><td>Resilience4j, Hystrix, Envoy; three states: closed → open → half-open</td></tr>
+      <tr><td><strong>Retry with backoff</strong></td><td>Retry failed requests with exponential delay + jitter</td><td>Jitter prevents synchronized retry storms; cap max retries</td></tr>
+      <tr><td><strong>Timeout</strong></td><td>Abandon request if no response in N ms</td><td>Connection timeout (establish) vs read timeout (data) vs write timeout</td></tr>
+      <tr><td><strong>Bulkhead</strong></td><td>Isolate resource pools per dependency so one failure doesn't cascade</td><td>Separate thread pools per downstream service; container resource limits</td></tr>
+      <tr><td><strong>Graceful degradation</strong></td><td>Return partial/cached/default results when dependency fails</td><td>Serve stale cache, hide feature, show fallback content</td></tr>
+      <tr><td><strong>Thundering herd</strong></td><td>Mass simultaneous retries after recovery overwhelm the system</td><td>Fix: exponential backoff + jitter, request coalescing, cache warming</td></tr>
+      <tr><td><strong>Idempotency key</strong></td><td>Unique key ensuring retried requests don't duplicate side effects</td><td>Store key + result in DB; return cached result on duplicate</td></tr>
+      <tr><td><strong>Dead letter queue (DLQ)</strong></td><td>Messages that fail repeatedly are moved to a separate queue for inspection</td><td>SQS DLQ, Kafka dead-letter topic; prevents poison pill messages blocking processing</td></tr>
+      <tr><td><strong>Health checks</strong></td><td>Liveness (is process alive?) and Readiness (is it ready to serve traffic?)</td><td>Kubernetes liveness/readiness probes; load balancer health endpoints</td></tr>
+      <tr><td><strong>Blast radius</strong></td><td>Scope of impact when a component fails</td><td>Design to contain: partial rollouts, feature flags, cell-based architecture</td></tr>
+      <tr><td><strong>Chaos engineering</strong></td><td>Intentionally inject failures to test resilience</td><td>Chaos Monkey, Gremlin, AWS Fault Injection Simulator</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Async -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="async">
+  <div class="section-title">12. Async &amp; Job Patterns <span class="badge">Decoupling</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Job queue</strong></td><td>Decouple request submission from processing for long-running tasks</td><td>SQS + Lambda worker, Celery + Redis, Sidekiq</td></tr>
+      <tr><td><strong>Polling</strong></td><td>Client repeatedly checks job status</td><td>Simple; inefficient at scale; add exponential backoff</td></tr>
+      <tr><td><strong>Webhook</strong></td><td>Server pushes completion event to client's registered URL</td><td>Stripe payment events, GitHub webhooks, Twilio</td></tr>
+      <tr><td><strong>Pub/Sub fan-out</strong></td><td>One event triggers notification to many subscribers</td><td>Order placed → email service + inventory service + analytics all receive the event</td></tr>
+      <tr><td><strong>Outbox pattern</strong></td><td>Write event to outbox table atomically with business data; relay process publishes to broker</td><td>Solves dual-write problem between DB and message broker</td></tr>
+      <tr><td><strong>Cron job / Scheduled task</strong></td><td>Time-based trigger for periodic work</td><td>Kubernetes CronJob, AWS EventBridge Scheduler, Celery Beat</td></tr>
+      <tr><td><strong>Event sourcing</strong></td><td>Store state as sequence of immutable events rather than current state snapshot</td><td>Audit trail, time-travel, CQRS; Kafka as event store</td></tr>
+      <tr><td><strong>CQRS</strong></td><td>Separate read and write models; writes update event log, reads from denormalized view</td><td>High-read/write asymmetry; enables different scaling strategies per side</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Crawling / Pipelines -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="crawling">
+  <div class="section-title">13. Crawling &amp; Large-Scale Data Pipelines <span class="badge">Data Engineering</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><strong>URL Frontier</strong></td><td>Priority queue of URLs to crawl, ordered by importance / staleness / change-frequency</td></tr>
+      <tr><td><strong>Bloom filter</strong></td><td>Probabilistic set membership check; false positives possible, no false negatives — cheap URL dedup before fetch</td></tr>
+      <tr><td><strong>Content fingerprint (SimHash / MinHash)</strong></td><td>Detects near-duplicate content, not just exact-match; essential for dedup across sources covering same story</td></tr>
+      <tr><td><strong>PageRank</strong></td><td>Importance score from inbound link structure; computed iteratively over entire graph; use as crawl priority signal</td></tr>
+      <tr><td><strong>Politeness policy</strong></td><td>Respect robots.txt, rate-limit per host, rotate User-Agent; avoid getting IP-banned</td></tr>
+      <tr><td><strong>Fetcher / Parser separation</strong></td><td>Fetch = I/O-bound; Parse = CPU-bound — scale them independently as separate worker pools</td></tr>
+      <tr><td><strong>CDC (Change Data Capture)</strong></td><td>Stream of changes from a source DB (Debezium → Kafka); trigger downstream pipelines on row-level changes</td></tr>
+      <tr><td><strong>Apache Spark</strong></td><td>Distributed compute engine for large-scale batch and streaming ETL (DataFrames, Spark SQL, MLlib)</td></tr>
+      <tr><td><strong>Apache Flink</strong></td><td>Stateful stream processing with event-time semantics; lower latency than Spark Streaming</td></tr>
+      <tr><td><strong>Apache Beam</strong></td><td>Unified batch+stream model; runs on Spark, Flink, or Dataflow runners</td></tr>
+      <tr><td><strong>dbt (data build tool)</strong></td><td>SQL-based transformation layer in the warehouse; version-controlled models, tests, lineage</td></tr>
+      <tr><td><strong>Airflow / Prefect / Dagster</strong></td><td>Workflow orchestrators for DAG-based pipeline scheduling and dependency management</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Search -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="search">
+  <div class="section-title">14. Search Systems <span class="badge">Retrieval</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Inverted index</strong></td><td>Maps token → list of documents containing it; backbone of all text search</td><td>Elasticsearch, Solr, Lucene</td></tr>
+      <tr><td><strong>TF-IDF</strong></td><td>Term frequency × inverse document frequency; classic relevance scoring</td><td>Baseline for keyword search ranking</td></tr>
+      <tr><td><strong>BM25</strong></td><td>Improved TF-IDF with saturation and document-length normalization</td><td>Elasticsearch default; better than TF-IDF for long docs</td></tr>
+      <tr><td><strong>Dense retrieval (ANN)</strong></td><td>Embed query and docs to vectors; nearest-neighbor search (FAISS, HNSW, Annoy)</td><td>Semantic search, RAG pipelines, recommendation</td></tr>
+      <tr><td><strong>Hybrid search</strong></td><td>Combine sparse (BM25) and dense (embedding) scores — often with RRF or learned weights</td><td>Best-of-both: keyword precision + semantic recall</td></tr>
+      <tr><td><strong>Typeahead / Autocomplete</strong></td><td>Prefix trie or edge-ngram index for low-latency prefix matching</td><td>Redis sorted sets or Elasticsearch edge-ngrams</td></tr>
+      <tr><td><strong>Faceted search</strong></td><td>Filter by pre-defined attributes (category, price range, brand) alongside text search</td><td>E-commerce, product catalogs — Elasticsearch aggregations</td></tr>
+      <tr><td><strong>Spell correction</strong></td><td>Levenshtein edit distance or phonetic matching to correct typos</td><td>Elasticsearch fuzzy queries; Symspell for fast correction</td></tr>
+      <tr><td><strong>Learning to Rank (LTR)</strong></td><td>Train ML model (gradient-boosted) on user click/engagement signals to rerank results</td><td>Improves on pure BM25 with behavioral signals; requires click logging</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Security -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="security">
+  <div class="section-title">15. Security <span class="badge">Trust</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Implementation</th></tr></thead>
+    <tbody>
+      <tr><td><strong>OAuth 2.0</strong></td><td>Delegated authorization — app gets limited access to user resources on their behalf</td><td>Authorization Code flow (web/mobile); Client Credentials (machine-to-machine)</td></tr>
+      <tr><td><strong>JWT (JSON Web Token)</strong></td><td>Signed (and optionally encrypted) token containing claims; stateless auth</td><td>Sign with RS256/ES256; verify signature, exp, aud on every request</td></tr>
+      <tr><td><strong>mTLS</strong></td><td>Both parties authenticate with certificates; mutual TLS</td><td>Service mesh (Istio), internal microservice trust; protects against MITM</td></tr>
+      <tr><td><strong>API key</strong></td><td>Shared secret in header for simple machine auth</td><td>Hash before storing; rotate regularly; scope to minimum permissions</td></tr>
+      <tr><td><strong>Zero-trust</strong></td><td>Never trust, always verify — authenticate every request even inside the network</td><td>BeyondCorp model; identity-aware proxy; short-lived credentials</td></tr>
+      <tr><td><strong>Secrets management</strong></td><td>Store credentials in dedicated vaults, not in code or env files</td><td>HashiCorp Vault, AWS Secrets Manager, GCP Secret Manager</td></tr>
+      <tr><td><strong>Encryption at rest / in transit</strong></td><td>TLS for transit; AES-256 for storage encryption</td><td>Mandatory for PII/PCI data; managed keys via KMS</td></tr>
+      <tr><td><strong>RBAC / ABAC</strong></td><td>Role-Based or Attribute-Based Access Control; who can do what on which resource</td><td>RBAC = coarse-grained roles; ABAC = fine-grained policy (OPA, Casbin)</td></tr>
+      <tr><td><strong>DDoS protection</strong></td><td>Absorb/filter volumetric attacks before they reach origin</td><td>Cloudflare, AWS Shield, Fastly; Anycast to distribute traffic</td></tr>
+      <tr><td><strong>SQL injection prevention</strong></td><td>Never interpolate user input into SQL strings</td><td>Parameterized queries / prepared statements always; ORMs help but still verify</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════ -->
+<!--                 ML SYSTEM DESIGN                    -->
+<!-- ════════════════════════════════════════════════════ -->
+
+<section class="section" id="ml-fundamentals">
+  <div class="section-title">16. ML System Design — Fundamentals <span class="badge">ML</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Problem framing</strong></td><td>Translate business need → classification / regression / ranking / retrieval / generation task</td></tr>
+      <tr><td><strong>Label definition</strong></td><td>What counts as positive? Explicit (click) vs implicit (dwell time). Noisy labels need smoothing/cleaning</td></tr>
+      <tr><td><strong>Training/Serving skew</strong></td><td>Features available offline differ from what's available at inference time; most common source of production failures</td></tr>
+      <tr><td><strong>Data leakage</strong></td><td>Future information leaks into training features; leads to over-optimistic offline metrics and poor live metrics</td></tr>
+      <tr><td><strong>Class imbalance</strong></td><td>Imbalanced classes (fraud, spam) require over/under-sampling, class weights, or threshold tuning</td></tr>
+      <tr><td><strong>Batch inference</strong></td><td>Precompute predictions offline, serve from lookup — for non-urgent freshness (overnight scores, recommendations)</td></tr>
+      <tr><td><strong>Online inference</strong></td><td>Real-time prediction per request — low latency required; model must be fast and lightweight</td></tr>
+      <tr><td><strong>Model drift</strong></td><td>Real-world distribution shifts, degrading accuracy — concept drift (relationship changes) vs data drift (input distribution changes)</td></tr>
+      <tr><td><strong>A/B testing / Shadow traffic</strong></td><td>A/B = split live traffic between models; shadow = log new model's predictions without serving them</td></tr>
+      <tr><td><strong>Accuracy vs latency vs cost</strong></td><td>ML equivalent of CAP theorem — always a three-way tradeoff; quantize/distill to shift the curve</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Feature Engineering -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="feature-engineering">
+  <div class="section-title">17. Feature Engineering <span class="badge">ML</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Feature store</strong></td><td>Centralized repository for computing and serving features consistently across train and serve</td><td>Feast, Tecton, Vertex Feature Store, Databricks Feature Store</td></tr>
+      <tr><td><strong>Online features</strong></td><td>Low-latency features served at inference time from Redis/DynamoDB</td><td>User's last 5 clicks, current session duration</td></tr>
+      <tr><td><strong>Offline features</strong></td><td>Pre-computed features from batch jobs stored in data warehouse</td><td>User's 30-day purchase history, document PageRank</td></tr>
+      <tr><td><strong>Embedding</strong></td><td>Dense vector capturing semantic meaning; enables similarity search</td><td>Word2Vec, BERT embeddings, item/user embeddings in RecSys</td></tr>
+      <tr><td><strong>NER (Named Entity Recognition)</strong></td><td>Tag spans of text as entities — PERSON, ORG, DATE, MONEY</td><td>Information extraction, knowledge graph population</td></tr>
+      <tr><td><strong>BIO tagging</strong></td><td>Begin / Inside / Outside scheme for multi-word entity spans</td><td>Token classification in transformers for NER</td></tr>
+      <tr><td><strong>Entity linking / disambiguation</strong></td><td>Map extracted mention to canonical entity ID</td><td>"Apple" → Apple Inc. (not apple the fruit)</td></tr>
+      <tr><td><strong>Feature hashing (hashing trick)</strong></td><td>Map high-cardinality categoricals to fixed-size vector via hash</td><td>Sparse advertising features in linear models</td></tr>
+      <tr><td><strong>Target encoding</strong></td><td>Replace categorical with mean of target for that category</td><td>High-cardinality fields; risk of leakage — use cross-validation folds</td></tr>
+      <tr><td><strong>Sliding window aggregations</strong></td><td>Rolling counts, sums, means over time windows per entity</td><td>User clicks in last 1h/24h/7d; requires streaming or pre-computation</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Model Serving -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="model-serving">
+  <div class="section-title">18. Model Serving &amp; Optimization <span class="badge">ML Infra</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Trade-off</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Quantization</strong></td><td>Reduce weight precision (FP32 → INT8 or FP16); smaller model, faster inference</td><td>Some accuracy loss; INT4/GPTQ for LLMs; use calibration data</td></tr>
+      <tr><td><strong>Pruning</strong></td><td>Remove low-magnitude weights or entire attention heads; sparsify model</td><td>Structured pruning (removes entire channels) friendlier to hardware</td></tr>
+      <tr><td><strong>Knowledge distillation</strong></td><td>Train small student model to mimic large teacher's soft outputs</td><td>Better than training student from scratch; teacher needed at distillation time</td></tr>
+      <tr><td><strong>ONNX</strong></td><td>Open format for ML models; enables cross-framework deployment and optimized runtimes</td><td>Export from PyTorch/TF; run with ONNX Runtime for CPU/GPU speedups</td></tr>
+      <tr><td><strong>TensorRT</strong></td><td>NVIDIA's inference optimizer; fuses ops, quantizes, optimizes for specific GPU</td><td>Significant speedup on NVIDIA GPUs; hardware-specific, not portable</td></tr>
+      <tr><td><strong>Batching</strong></td><td>Accumulate multiple requests into one forward pass for GPU efficiency</td><td>Static batching (wait for N requests) vs dynamic batching (timeout-based)</td></tr>
+      <tr><td><strong>KV cache</strong></td><td>Cache key/value activations for prior tokens in transformer decoding</td><td>Critical for LLM inference speed; memory scales with sequence length × batch size</td></tr>
+      <tr><td><strong>Continuous batching</strong></td><td>Process new requests mid-generation rather than waiting for batch to finish</td><td>vLLM, TGI — dramatically improves GPU utilization for LLM serving</td></tr>
+      <tr><td><strong>Model parallelism</strong></td><td>Tensor parallelism (split ops across GPUs) or pipeline parallelism (split layers)</td><td>Required when model doesn't fit on one GPU; increases coordination overhead</td></tr>
+      <tr><td><strong>Triton Inference Server</strong></td><td>NVIDIA's model serving platform supporting dynamic batching, multiple backends</td><td>Ensemble pipelines (preprocessing → model → postprocessing) in one server</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: ML Infrastructure -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="ml-infra">
+  <div class="section-title">19. ML Infrastructure <span class="badge">ML Infra</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Component</th><th>Purpose</th><th>Technologies</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Experiment tracking</strong></td><td>Log hyperparameters, metrics, artifacts for each training run</td><td>MLflow, Weights &amp; Biases, Comet, Neptune</td></tr>
+      <tr><td><strong>Model registry</strong></td><td>Version, stage (staging/production), and lineage-track models</td><td>MLflow Model Registry, Sagemaker Model Registry, Vertex AI</td></tr>
+      <tr><td><strong>Training compute</strong></td><td>GPU clusters for training large models</td><td>AWS SageMaker, GCP Vertex AI Training, Azure ML, on-prem SLURM</td></tr>
+      <tr><td><strong>Data versioning</strong></td><td>Track dataset versions alongside model versions</td><td>DVC, LakeFS, Delta Lake time-travel</td></tr>
+      <tr><td><strong>Pipeline orchestration</strong></td><td>DAG-based ML pipeline execution with dependencies and retries</td><td>Kubeflow Pipelines, Metaflow, ZenML, Airflow + custom operators</td></tr>
+      <tr><td><strong>Distributed training</strong></td><td>Data parallelism (replicate model; split data) or model parallelism (split model)</td><td>PyTorch DDP, DeepSpeed, Horovod, FSDP</td></tr>
+      <tr><td><strong>GPU memory management</strong></td><td>Gradient checkpointing, mixed precision (AMP), offloading to CPU/NVMe</td><td>DeepSpeed ZeRO stages; Flash Attention for transformer memory efficiency</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Recommendation Systems -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="recsys">
+  <div class="section-title">20. Recommendation Systems <span class="badge">ML</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Collaborative filtering</strong></td><td>Recommend based on similar users' behavior</td><td>Matrix factorization (ALS), neural CF; cold start problem for new users</td></tr>
+      <tr><td><strong>Content-based filtering</strong></td><td>Recommend items similar to what user liked, based on item features</td><td>TF-IDF article similarity; solves cold start for new users</td></tr>
+      <tr><td><strong>Two-tower model</strong></td><td>Separate encoder for user and item; dot-product similarity at inference</td><td>YouTube, Airbnb; pre-compute item embeddings for ANN lookup</td></tr>
+      <tr><td><strong>Candidate generation</strong></td><td>First stage: retrieve top-K candidates from millions of items using fast ANN</td><td>FAISS, ScaNN, Pinecone</td></tr>
+      <tr><td><strong>Ranking / Re-ranking</strong></td><td>Second stage: score candidates with rich features + heavy model; rank top-N</td><td>Gradient boosted trees, DCN, DIN; uses context unavailable at retrieval</td></tr>
+      <tr><td><strong>Cold start</strong></td><td>New users/items have no interaction history</td><td>Fix: content-based fallback, popularity baseline, onboarding survey</td></tr>
+      <tr><td><strong>Exploration vs exploitation</strong></td><td>Balance serving known good recommendations vs discovering new preferences</td><td>Epsilon-greedy, Thompson Sampling, contextual bandits</td></tr>
+      <tr><td><strong>Diversity / Serendipity</strong></td><td>Avoid filter bubbles; inject non-obvious recommendations</td><td>MMR (Maximal Marginal Relevance), slot-based diversity constraints</td></tr>
+      <tr><td><strong>Session-based RecSys</strong></td><td>Recommend based on current session context without long-term user history</td><td>Transformer-based sequential models (SASRec, BERT4Rec)</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: NLP & LLMs -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="nlp">
+  <div class="section-title">21. NLP &amp; LLM Systems <span class="badge">AI</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Term</th><th>Meaning</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Transformer</strong></td><td>Self-attention + feed-forward architecture; parallelizes over sequence positions</td><td>BERT (encoder), GPT (decoder), T5 (encoder-decoder)</td></tr>
+      <tr><td><strong>RAG (Retrieval-Augmented Generation)</strong></td><td>Retrieve relevant chunks from knowledge base, inject into LLM context</td><td>Reduces hallucination; knowledge stays updateable without retraining</td></tr>
+      <tr><td><strong>Fine-tuning</strong></td><td>Continue training pretrained model on task-specific data</td><td>Full fine-tune vs parameter-efficient (LoRA, QLoRA, adapter layers)</td></tr>
+      <tr><td><strong>LoRA</strong></td><td>Low-Rank Adaptation: inject small trainable rank-decomposition matrices into frozen weights</td><td>Trains &lt;1% of parameters; minimal memory overhead; multiple LoRA adapters can be swapped</td></tr>
+      <tr><td><strong>Prompt engineering</strong></td><td>Craft input prompts to steer LLM behavior without weight updates</td><td>Zero-shot, few-shot, chain-of-thought, structured output instructions</td></tr>
+      <tr><td><strong>RLHF</strong></td><td>Reinforcement Learning from Human Feedback; align LLM to human preferences</td><td>Reward model trained on human rankings; PPO updates LLM policy</td></tr>
+      <tr><td><strong>DPO (Direct Preference Optimization)</strong></td><td>Fine-tune LLM on preference pairs without explicit reward model</td><td>Simpler than RLHF; increasingly preferred for alignment</td></tr>
+      <tr><td><strong>Context window</strong></td><td>Max tokens model can attend to at once; longer = more memory and compute</td><td>Flash Attention, RoPE extrapolation, sliding window attention extend effective length</td></tr>
+      <tr><td><strong>Chunking strategy</strong></td><td>How to split documents for RAG indexing — fixed size, sentence, semantic, recursive</td><td>Chunk overlap prevents context loss at boundaries</td></tr>
+      <tr><td><strong>Reranking</strong></td><td>Cross-encoder model rescores top-K retrieved chunks for relevance before generation</td><td>Cohere Rerank, Jina Reranker; improves RAG precision at cost of latency</td></tr>
+      <tr><td><strong>Agentic AI</strong></td><td>LLM with tools (web search, code interpreter, APIs); iterative plan-act-observe loop</td><td>ReAct, AutoGPT patterns; tool calling via function calling API</td></tr>
+      <tr><td><strong>MCP (Model Context Protocol)</strong></td><td>Standardized protocol for LLM tools and external context sources</td><td>Anthropic standard; enables interoperable tool definitions across models</td></tr>
+      <tr><td><strong>Hallucination mitigation</strong></td><td>LLMs generate plausible but incorrect facts</td><td>Grounding (RAG), citation enforcement, self-consistency, tool use for facts</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: MLOps -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="mlops">
+  <div class="section-title">22. MLOps <span class="badge">Operations</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Practice</th><th>What it solves</th><th>Tools</th></tr></thead>
+    <tbody>
+      <tr><td><strong>CI/CD for ML</strong></td><td>Automate training, evaluation, and deployment on code/data changes</td><td>GitHub Actions + DVC, Kubeflow Pipelines, MLflow + Jenkins</td></tr>
+      <tr><td><strong>Data validation</strong></td><td>Catch schema changes, anomalous distributions before training</td><td>Great Expectations, TFX Data Validation, Pandera, Soda</td></tr>
+      <tr><td><strong>Model monitoring</strong></td><td>Track prediction distributions, input feature stats in production</td><td>Evidently AI, WhyLabs, Arize, Fiddler</td></tr>
+      <tr><td><strong>Canary deployment</strong></td><td>Roll new model to small traffic slice; compare metrics before full rollout</td><td>Traffic splitting in SageMaker, Vertex AI, Istio traffic shifting</td></tr>
+      <tr><td><strong>Blue-green deployment</strong></td><td>Run old (blue) and new (green) in parallel; instant cutover with easy rollback</td><td>Load balancer switch; zero-downtime deployment</td></tr>
+      <tr><td><strong>Model versioning</strong></td><td>Tag models with training data version, code commit, metrics</td><td>MLflow, DVC; link to experiment run for reproducibility</td></tr>
+      <tr><td><strong>Retraining triggers</strong></td><td>Scheduled, drift-triggered, or performance-triggered retraining</td><td>Monitor AUC/RMSE degradation; feature drift alerts</td></tr>
+      <tr><td><strong>Reproducibility</strong></td><td>Same code + data + config must produce same model</td><td>Seed all RNG; version datasets; use deterministic ops; log everything</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION: Evaluation -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="section" id="ml-eval">
+  <div class="section-title">23. ML Evaluation <span class="badge">Metrics</span></div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Metric</th><th>Formula / Meaning</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Precision / Recall</strong></td><td>Precision = TP/(TP+FP); Recall = TP/(TP+FN)</td><td>Classification with class imbalance; choose based on cost of false positives vs negatives</td></tr>
+      <tr><td><strong>F1 Score</strong></td><td>Harmonic mean of Precision and Recall</td><td>Balanced metric when both matter; F-beta for weighted tradeoff</td></tr>
+      <tr><td><strong>AUC-ROC</strong></td><td>Area under ROC curve; threshold-independent ranking quality</td><td>Binary classification; compares models independent of operating threshold</td></tr>
+      <tr><td><strong>AUC-PR</strong></td><td>Area under Precision-Recall curve</td><td>Highly imbalanced datasets (fraud, rare disease) — more informative than ROC</td></tr>
+      <tr><td><strong>NDCG</strong></td><td>Normalized Discounted Cumulative Gain; rewards relevant items ranked higher</td><td>Ranking tasks — search, recommendations</td></tr>
+      <tr><td><strong>MRR</strong></td><td>Mean Reciprocal Rank; 1/rank of first relevant result, averaged across queries</td><td>Information retrieval, QA systems</td></tr>
+      <tr><td><strong>RMSE / MAE</strong></td><td>Root Mean Squared Error / Mean Absolute Error</td><td>Regression; RMSE penalizes large errors more; MAE more robust to outliers</td></tr>
+      <tr><td><strong>Log loss (cross-entropy)</strong></td><td>Penalizes confident wrong predictions heavily</td><td>Classification training loss; well-calibrated probability outputs</td></tr>
+      <tr><td><strong>Calibration</strong></td><td>Predicted probability 0.7 should be correct ~70% of the time</td><td>Risk scoring, bidding systems; use Platt scaling or isotonic regression to fix</td></tr>
+      <tr><td><strong>Offline vs Online metrics</strong></td><td>Offline (AUC, NDCG on test set) ≠ Online (CTR, revenue, retention)</td><td>Always validate offline metric improves correlate with online business metric before shipping</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// Sidebar active link highlighting on scroll
+const sections = document.querySelectorAll('.section');
+const links = document.querySelectorAll('#sidebar a');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`#sidebar a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
